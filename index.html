@@ -3,575 +3,382 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PythRisk — DeFi Liquidation Monitor</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#060608;
-  --card:#0d0d12;
-  --card2:#111118;
-  --border:#1a1a24;
-  --border2:#252530;
-  --safe:#00e5a0;
-  --warn:#f5a623;
-  --danger:#ff3b5c;
-  --dead:#6b7280;
-  --blue:#3b82f6;
-  --text:#eeeef5;
-  --muted:#5a5a72;
-  --mono:'DM Mono',monospace;
-  --display:'Syne',sans-serif;
+  --bg:#07070a;--card:#0f0f14;--card2:#14141a;
+  --border:#1c1c26;--border2:#26263a;
+  --safe:#00e5a0;--warn:#f5a623;--danger:#ff3b5c;--muted-red:#7a1f30;
+  --blue:#4f8fff;--purple:#7c5cfc;
+  --text:#f0f0f8;--muted:#52526e;
+  --mono:'DM Mono',monospace;--display:'Syne',sans-serif;
 }
-html{scroll-behavior:smooth}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--mono);
-  min-height:100vh;
-  overflow-x:hidden;
-  width:100%;
-  max-width:100%;
-}
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(255,59,92,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(0,229,160,0.04) 0%, transparent 60%);
-  pointer-events:none;z-index:0;
-}
+html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--mono);overflow-x:hidden}
 
-/* HEADER */
-header{
-position:sticky;top:0;z-index:100;
-display:flex;align-items:center;justify-content:space-between;
-padding:16px 24px;
-background:rgba(6,6,8,0.9);
-border-bottom:1px solid var(–border);
-backdrop-filter:blur(20px);
-}
-.logo{display:flex;align-items:center;gap:12px}
-.logo-mark{
-width:36px;height:36px;
-background:linear-gradient(135deg,var(–danger),#ff6b35);
+/* BG GLOW */
+body::before{content:’’;position:fixed;inset:0;pointer-events:none;z-index:0;
+background:radial-gradient(ellipse 80% 50% at 10% -10%,rgba(255,59,92,0.07) 0%,transparent 60%),
+radial-gradient(ellipse 60% 40% at 90% 110%,rgba(0,229,160,0.05) 0%,transparent 60%)}
+
+/* ── HEADER ── */
+header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+padding:0 24px;height:56px;background:rgba(7,7,10,0.92);border-bottom:1px solid var(–border);backdrop-filter:blur(16px)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-hex{width:32px;height:32px;background:linear-gradient(135deg,#ff3b5c,#ff6b35);
 clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-display:flex;align-items:center;justify-content:center;
-font-family:var(–display);font-weight:800;font-size:13px;color:white;
-flex-shrink:0;
-}
-.logo-name{font-family:var(–display);font-weight:800;font-size:18px;letter-spacing:-0.5px}
-.logo-name span{color:var(–danger)}
-.logo-sub{font-size:9px;color:var(–muted);letter-spacing:2px;margin-top:1px}
-.header-right{display:flex;align-items:center;gap:12px}
-.pyth-badge{
-display:flex;align-items:center;gap:6px;
-padding:5px 12px;border-radius:4px;
-border:1px solid rgba(0,229,160,0.2);
-background:rgba(0,229,160,0.05);
-font-size:9px;letter-spacing:2px;color:var(–safe);
-}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(–safe);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,160,0.4)}50%{opacity:0.6;box-shadow:0 0 0 4px transparent}}
+display:flex;align-items:center;justify-content:center;font-family:var(–display);font-size:11px;font-weight:800;color:white}
+.logo-text{font-family:var(–display);font-size:17px;font-weight:800}
+.logo-text span{color:#ff3b5c}
+.logo-sub{font-size:9px;color:var(–muted);letter-spacing:1.5px;margin-top:1px}
+.live-pill{display:flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+border:1px solid rgba(0,229,160,0.25);background:rgba(0,229,160,0.06);
+font-size:9px;letter-spacing:2px;color:var(–safe)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(–safe);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* HERO BANNER */
-.hero{
-padding:48px 24px 40px;
-border-bottom:1px solid var(–border);
-position:relative;z-index:1;
-}
-.hero-eyebrow{
-font-size:9px;letter-spacing:4px;color:var(–danger);
-text-transform:uppercase;margin-bottom:12px;
-display:flex;align-items:center;gap:8px;
-}
-.hero-eyebrow::before{content:’’;display:block;width:24px;height:1px;background:var(–danger)}
-.hero h1{
-font-family:var(–display);
-font-size:clamp(28px,6vw,52px);
-font-weight:800;
-line-height:1.05;
-letter-spacing:-1px;
-margin-bottom:16px;
-}
-.hero h1 em{font-style:normal;color:var(–danger)}
-.hero p{
-font-size:12px;line-height:1.9;
-color:var(–muted);max-width:500px;
-}
-.hero-stats{
-display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;
-}
-.hstat{display:flex;flex-direction:column;gap:3px}
-.hstat-n{font-family:var(–display);font-size:24px;font-weight:700}
-.hstat-l{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase}
+/* ── HERO ── */
+.hero{position:relative;z-index:1;padding:40px 24px 32px;border-bottom:1px solid var(–border)}
+.hero-tag{font-size:9px;letter-spacing:4px;color:#ff3b5c;text-transform:uppercase;margin-bottom:14px;
+display:flex;align-items:center;gap:10px}
+.hero-tag::before{content:’’;width:20px;height:1px;background:#ff3b5c}
+.hero h1{font-family:var(–display);font-size:clamp(26px,5.5vw,48px);font-weight:800;line-height:1.08;letter-spacing:-1px;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:#ff3b5c}
+.hero p{font-size:12px;line-height:1.9;color:var(–muted);max-width:520px;margin-bottom:28px}
+.hero-kpis{display:flex;gap:28px;flex-wrap:wrap}
+.kpi{display:flex;flex-direction:column;gap:3px}
+.kpi-n{font-family:var(–display);font-size:26px;font-weight:800;line-height:1}
+.kpi-l{font-size:8px;letter-spacing:2.5px;color:var(–muted);text-transform:uppercase;margin-top:2px}
 
-/* MAIN LAYOUT */
-.main{
-display:grid;
-grid-template-columns:1fr 340px;
-gap:0;
-position:relative;z-index:1;
-}
-@media(max-width:768px){.main{grid-template-columns:1fr}}
+/* ── TOOLBAR ── */
+.toolbar{position:relative;z-index:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+padding:12px 24px;border-bottom:1px solid var(–border);background:var(–card)}
+.tb-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:5px;
+font-size:9px;letter-spacing:1.5px;cursor:pointer;font-family:var(–mono);border:1px solid;transition:all .18s}
+.tb-add{border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08);color:#ff3b5c}
+.tb-add:hover{background:rgba(255,59,92,.18)}
+.tb-slider{border-color:var(–border2);background:transparent;color:var(–muted)}
+.tb-slider:hover,.tb-slider.on{border-color:var(–warn);color:var(–warn);background:rgba(245,166,35,.08)}
+.tb-whatif{border-color:var(–border2);background:transparent;color:var(–muted)}
+.tb-whatif:hover,.tb-whatif.on{border-color:var(–blue);color:var(–blue);background:rgba(79,143,255,.08)}
+.tb-share{border-color:var(–border2);background:transparent;color:var(–muted)}
+.tb-share:hover{border-color:var(–safe);color:var(–safe);background:rgba(0,229,160,.08)}
+.tb-alert{border-color:var(–border2);background:transparent;color:var(–muted)}
+.tb-alert.on{border-color:var(–warn);color:var(–warn);background:rgba(245,166,35,.08)}
+.tb-spacer{flex:1}
 
-/* LEFT — POSITIONS */
-.positions-pane{border-right:1px solid var(–border)}
-.pane-header{
-display:flex;align-items:center;justify-content:space-between;
-padding:20px 24px;
-border-bottom:1px solid var(–border);
-}
-.pane-title{font-family:var(–display);font-size:13px;font-weight:700;letter-spacing:1px}
-.add-btn{
-display:flex;align-items:center;gap:6px;
-padding:7px 14px;border-radius:4px;
-background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);
-color:var(–danger);font-size:10px;letter-spacing:1px;
-cursor:pointer;font-family:var(–mono);transition:all 0.2s;
-}
-.add-btn:hover{background:rgba(255,59,92,0.2)}
+/* ── PANEL: SLIDER ── */
+.panel{display:none;padding:20px 24px;border-bottom:2px solid var(–border);background:var(–card);animation:fadeIn .2s}
+.panel.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.panel-title{font-family:var(–display);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:16px;
+display:flex;justify-content:space-between;align-items:center}
+.panel-close{font-size:10px;color:var(–muted);background:none;border:1px solid var(–border);
+padding:3px 10px;border-radius:3px;cursor:pointer;font-family:var(–mono)}
+.panel-close:hover{color:var(–text);border-color:var(–muted)}
+
+/* Sliders */
+.sl-item{margin-bottom:16px}
+.sl-head{display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px}
+.sl-sym{color:var(–muted)}.sl-val{font-weight:500}
+input[type=range]{width:100%;-webkit-appearance:none;height:3px;border-radius:2px;outline:none;cursor:pointer;
+background:linear-gradient(to right,#ff3b5c 0%,var(–warn) 50%,var(–safe) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+border-radius:50%;background:white;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.5)}
+.sl-bounds{display:flex;justify-content:space-between;font-size:8px;color:var(–muted);margin-top:3px}
+
+/* What If */
+.wi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:500px){.wi-grid{grid-template-columns:1fr}}
+.wi-card{background:var(–card2);border:1px solid var(–border);border-radius:6px;padding:12px}
+.wi-label{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:6px}
+.wi-row{display:flex;gap:6px;margin-bottom:8px}
+.wi-input{flex:1;padding:7px 10px;background:var(–bg);border:1px solid var(–border2);
+border-radius:4px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none}
+.wi-input:focus{border-color:var(–blue)}
+.wi-calc{padding:7px 12px;border-radius:4px;background:rgba(79,143,255,.1);border:1px solid rgba(79,143,255,.3);
+color:var(–blue);font-size:9px;cursor:pointer;font-family:var(–mono);white-space:nowrap}
+.wi-pos-select{width:100%;padding:8px 10px;background:var(–card2);border:1px solid var(–border2);
+border-radius:4px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;margin-bottom:12px;cursor:pointer}
+.wi-result{display:none;margin-top:10px;padding:12px;background:var(–bg);border:1px solid var(–border);
+border-radius:6px;font-size:11px;line-height:2}
+.wi-result.show{display:block}
+
+/* ── MAIN CONTENT ── */
+.content{position:relative;z-index:1;display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 56px)}
+@media(max-width:700px){.content{grid-template-columns:1fr}}
+
+/* LEFT: positions */
+.pos-pane{border-right:1px solid var(–border)}
+.pos-pane-head{padding:16px 24px;border-bottom:1px solid var(–border);
+font-size:9px;letter-spacing:3px;color:var(–muted);text-transform:uppercase}
 
 /* POSITION CARD */
-.position-card{
-border-bottom:1px solid var(–border);
-padding:20px 24px;
-cursor:pointer;
-transition:background 0.15s;
-position:relative;
-overflow:hidden;
-}
-.position-card::before{
-content:’’;
-position:absolute;left:0;top:0;bottom:0;width:3px;
-background:var(–safe);transition:background 0.3s;
-}
-.position-card.warn::before{background:var(–warn)}
-.position-card.danger::before{background:var(–danger)}
-.position-card.dead::before{background:var(–dead)}
-.position-card:hover{background:rgba(255,255,255,0.02)}
+.pos-card{padding:18px 24px;border-bottom:1px solid var(–border);cursor:default;
+transition:background .15s;border-left:3px solid transparent;position:relative}
+.pos-card.safe{border-left-color:var(–safe)}.pos-card.warn{border-left-color:var(–warn)}
+.pos-card.danger{border-left-color:#ff3b5c;animation:dangerPulse 3s infinite}
+.pos-card.dead{border-left-color:var(–muted)}
+@keyframes dangerPulse{0%,100%{background:transparent}50%{background:rgba(255,59,92,.03)}}
+.pos-card:hover{background:rgba(255,255,255,.015)}
 
-.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-.pc-protocol{
-display:flex;align-items:center;gap:8px;
-}
-.proto-icon{
-width:28px;height:28px;border-radius:6px;
-display:flex;align-items:center;justify-content:center;
-font-size:11px;font-weight:700;font-family:var(–display);
-flex-shrink:0;
-}
+.pc-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pc-left{display:flex;align-items:center;gap:10px}
+.pc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+font-family:var(–display);font-size:12px;font-weight:800;flex-shrink:0}
 .pc-name{font-family:var(–display);font-size:14px;font-weight:700}
-.pc-type{font-size:9px;color:var(–muted);letter-spacing:1px;margin-top:2px}
-.health-badge{
-padding:4px 10px;border-radius:3px;
-font-size:9px;font-weight:500;letter-spacing:2px;
-text-transform:uppercase;
-}
-.badge-safe{background:rgba(0,229,160,0.1);color:var(–safe);border:1px solid rgba(0,229,160,0.2)}
-.badge-warn{background:rgba(245,166,35,0.1);color:var(–warn);border:1px solid rgba(245,166,35,0.2)}
-.badge-danger{background:rgba(255,59,92,0.15);color:var(–danger);border:1px solid rgba(255,59,92,0.3)}
-.badge-dead{background:rgba(107,114,128,0.1);color:var(–dead);border:1px solid rgba(107,114,128,0.2)}
+.pc-pair{font-size:10px;color:var(–muted);margin-top:2px;letter-spacing:.5px}
+.pc-right{display:flex;align-items:center;gap:8px}
+.badge{padding:4px 10px;border-radius:3px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid}
+.badge.safe{color:var(–safe);border-color:rgba(0,229,160,.3);background:rgba(0,229,160,.08)}
+.badge.warn{color:var(–warn);border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.08)}
+.badge.danger{color:#ff3b5c;border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.1)}
+.badge.dead{color:var(–muted);border-color:rgba(100,100,120,.3);background:rgba(100,100,120,.08)}
+.del-btn{background:none;border:none;color:var(–muted);font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
+.del-btn:hover{color:#ff3b5c}
 
-/* HEALTH BAR */
-.health-bar-wrap{margin-bottom:12px}
-.health-bar-labels{display:flex;justify-content:space-between;font-size:9px;color:var(–muted);margin-bottom:5px}
-.health-bar-track{
-height:6px;border-radius:3px;
-background:var(–border2);
-overflow:hidden;
-}
-.health-bar-fill{
-height:100%;border-radius:3px;
-transition:width 0.8s ease, background 0.3s;
-}
+/* HF BAR */
+.hf-wrap{margin-bottom:14px}
+.hf-head{display:flex;justify-content:space-between;font-size:10px;margin-bottom:5px}
+.hf-label{color:var(–muted)}.hf-val{font-weight:600}
+.hf-track{height:5px;background:var(–border2);border-radius:3px;overflow:hidden}
+.hf-fill{height:100%;border-radius:3px;transition:width .8s ease}
 
-/* METRICS ROW */
-.pc-metrics{
-display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-margin-bottom:12px;
-}
-.pc-metric{background:var(–card2);border:1px solid var(–border);padding:8px 10px;border-radius:4px}
-.pc-metric-l{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
-.pc-metric-v{font-size:12px;font-weight:500}
+/* METRICS */
+.pc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:400px){.pc-metrics{grid-template-columns:repeat(2,1fr)}}
+.pc-m{background:var(–card2);border:1px solid var(–border);border-radius:5px;padding:9px 10px}
+.pc-m-l{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
+.pc-m-v{font-size:12px;font-weight:500}
 
-/* LIQUIDATION WARNING */
-.liq-warning{
-display:flex;align-items:center;gap:8px;
-padding:8px 12px;border-radius:4px;
-font-size:10px;line-height:1.5;
-}
-.liq-safe{background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.15);color:rgba(0,229,160,0.8)}
-.liq-warn{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(–warn)}
-.liq-danger{background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.25);color:var(–danger);animation:flashborder 2s infinite}
-@keyframes flashborder{0%,100%{border-color:rgba(255,59,92,0.25)}50%{border-color:rgba(255,59,92,0.6)}}
-.liq-dead{background:rgba(107,114,128,0.08);border:1px solid rgba(107,114,128,0.2);color:var(–dead)}
+/* ALERT BOX */
+.alert-box{padding:9px 12px;border-radius:5px;font-size:10px;line-height:1.6;border:1px solid}
+.ab-safe{background:rgba(0,229,160,.05);border-color:rgba(0,229,160,.15);color:rgba(0,229,160,.8)}
+.ab-warn{background:rgba(245,166,35,.07);border-color:rgba(245,166,35,.25);color:var(–warn)}
+.ab-danger{background:rgba(255,59,92,.07);border-color:rgba(255,59,92,.3);color:#ff3b5c;
+animation:flashBorder 2s infinite}
+@keyframes flashBorder{0%,100%{border-color:rgba(255,59,92,.3)}50%{border-color:rgba(255,59,92,.7)}}
+.ab-dead{background:rgba(100,100,120,.06);border-color:rgba(100,100,120,.2);color:var(–muted)}
 
-/* EMPTY STATE */
-.empty-state{
-padding:60px 24px;text-align:center;
-color:var(–muted);
-}
-.empty-icon{font-size:40px;margin-bottom:16px;opacity:0.4}
-.empty-title{font-family:var(–display);font-size:16px;font-weight:700;margin-bottom:8px;color:var(–text)}
-.empty-desc{font-size:11px;line-height:1.8;max-width:280px;margin:0 auto}
+/* EMPTY */
+.empty{padding:64px 24px;text-align:center;color:var(–muted)}
+.empty-icon{font-size:36px;margin-bottom:16px;opacity:.35}
+.empty h3{font-family:var(–display);font-size:16px;font-weight:700;color:var(–text);margin-bottom:8px}
+.empty p{font-size:11px;line-height:1.8;max-width:260px;margin:0 auto 20px}
+.empty-cta{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:5px;
+background:rgba(255,59,92,.1);border:1px solid rgba(255,59,92,.35);color:#ff3b5c;
+font-size:10px;letter-spacing:1.5px;cursor:pointer;font-family:var(–mono)}
 
-/* RIGHT — PANEL */
-.right-pane{position:sticky;top:65px;height:calc(100vh - 65px);overflow-y:auto}
-@media(max-width:768px){.right-pane{position:static;height:auto;border-top:1px solid var(–border)}}
+/* RIGHT: sidebar */
+.sidebar{border-left:none}
+@media(max-width:700px){.sidebar{border-top:1px solid var(–border)}}
 
-/* ADD POSITION FORM */
-.form-pane{padding:20px 20px}
-.form-title{
-font-family:var(–display);font-size:13px;font-weight:700;
-letter-spacing:1px;margin-bottom:20px;
-display:flex;align-items:center;gap:8px;
-}
-.form-title::after{content:’’;flex:1;height:1px;background:var(–border)}
+/* ADD FORM */
+.form-block{padding:20px}
+.form-head{font-size:9px;letter-spacing:3px;color:var(–muted);text-transform:uppercase;
+margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.form-head::after{content:’’;flex:1;height:1px;background:var(–border)}
+.f-group{margin-bottom:12px}
+.f-label{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:5px;display:block}
+.f-input,.f-select{width:100%;padding:9px 12px;background:var(–card2);border:1px solid var(–border2);
+border-radius:5px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;transition:border .2s}
+.f-input:focus,.f-select:focus{border-color:#ff3b5c}
+.f-select{cursor:pointer;-webkit-appearance:none;
+background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘10’ height=‘6’%3E%3Cpath d=‘M0 0l5 6 5-6z’ fill=’%2352526e’/%3E%3C/svg%3E”);
+background-repeat:no-repeat;background-position:right 12px center;padding-right:28px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calc-btn{width:100%;padding:12px;border-radius:5px;
+background:linear-gradient(135deg,#ff3b5c,#ff6035);
+border:none;color:white;font-family:var(–display);font-size:11px;font-weight:700;
+letter-spacing:2px;cursor:pointer;transition:opacity .2s;margin-top:4px}
+.calc-btn:hover{opacity:.85}
 
-.form-group{margin-bottom:14px}
-.form-label{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:6px;display:block}
-.form-input{
-width:100%;padding:10px 12px;
-background:var(–card2);border:1px solid var(–border2);
-border-radius:4px;color:var(–text);font-family:var(–mono);font-size:12px;
-outline:none;transition:border-color 0.2s;
-}
-.form-input:focus{border-color:var(–danger)}
-.form-select{
-width:100%;padding:10px 12px;
-background:var(–card2);border:1px solid var(–border2);
-border-radius:4px;color:var(–text);font-family:var(–mono);font-size:12px;
-outline:none;cursor:pointer;
-appearance:none;
-background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘10’ height=‘6’%3E%3Cpath d=‘M0 0l5 6 5-6z’ fill=’%235a5a72’/%3E%3C/svg%3E”);
-background-repeat:no-repeat;background-position:right 12px center;
-padding-right:32px;
-}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.submit-btn{
-width:100%;padding:12px;border-radius:4px;
-background:linear-gradient(135deg,var(–danger),#ff6b35);
-border:none;color:white;font-family:var(–display);
-font-size:12px;font-weight:700;letter-spacing:2px;
-cursor:pointer;transition:opacity 0.2s;margin-top:6px;
-}
-.submit-btn:hover{opacity:0.85}
+/* TICKER */
+.ticker-block{padding:16px 20px;border-top:1px solid var(–border)}
+.block-head{font-size:8px;letter-spacing:2.5px;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
+.tick-row{display:flex;justify-content:space-between;align-items:center;
+padding:6px 0;border-bottom:1px solid var(–border);font-size:11px}
+.tick-row:last-child{border:none}
+.tick-sym{color:var(–muted);font-size:10px}
+.tick-p{font-weight:500}.up{color:var(–safe)}.dn{color:#ff3b5c}
 
-/* PRICE TICKER */
-.ticker-pane{
-border-top:1px solid var(–border);
-padding:16px 20px;
-}
-.ticker-title{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
-.ticker-item{
-display:flex;justify-content:space-between;align-items:center;
-padding:7px 0;border-bottom:1px solid var(–border);
-font-size:11px;
-}
-.ticker-item:last-child{border-bottom:none}
-.ticker-sym{color:var(–muted);font-size:10px}
-.ticker-price{font-weight:500}
-.ticker-chg{font-size:10px}
-.up{color:var(–safe)}.dn{color:var(–danger)}
+/* STRESS */
+.stress-block{padding:16px 20px;border-top:1px solid var(–border)}
+.st-btn{width:100%;padding:8px;border-radius:4px;margin-bottom:6px;cursor:pointer;font-family:var(–mono);
+font-size:9px;letter-spacing:1px;border:1px solid var(–border2);background:transparent;color:var(–muted);transition:all .15s}
+.st-btn:hover{border-color:var(–warn);color:var(–warn);background:rgba(245,166,35,.06)}
+.st-btn.reset:hover{border-color:var(–safe);color:var(–safe);background:rgba(0,229,160,.06)}
+.st-result{display:none;margin-top:8px;padding:10px;background:var(–card2);border:1px solid var(–border);
+border-radius:5px;font-size:10px;color:var(–muted);line-height:1.8}
+.st-result.show{display:block}
 
-/* STRESS TEST */
-.stress-pane{
-border-top:1px solid var(–border);
-padding:16px 20px;
-}
-.stress-title{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
-.stress-btn{
-width:100%;padding:9px;border-radius:4px;
-background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);
-color:var(–blue);font-size:10px;letter-spacing:1px;
-cursor:pointer;font-family:var(–mono);transition:all 0.2s;margin-bottom:8px;
-}
-.stress-btn:hover{background:rgba(59,130,246,0.15)}
-.stress-result{
-font-size:10px;color:var(–muted);line-height:1.8;
-padding:10px;background:var(–card2);border:1px solid var(–border);
-border-radius:4px;display:none;
-}
-.stress-result.show{display:block}
+/* SHARE MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;
+align-items:flex-end;justify-content:center;padding:0}
+.overlay.show{display:flex}
+.modal{background:var(–card);border:1px solid var(–border2);border-radius:12px 12px 0 0;
+padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto}
+@media(min-width:500px){.overlay{align-items:center;padding:20px}
+.modal{border-radius:12px;max-height:90vh}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-family:var(–display);font-size:15px;font-weight:700}
+.modal-x{background:none;border:none;color:var(–muted);font-size:20px;cursor:pointer;line-height:1}
+.m-select{width:100%;padding:9px 12px;background:var(–card2);border:1px solid var(–border2);
+border-radius:5px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;margin-bottom:16px;cursor:pointer}
 
-/* MODAL */
-.modal-overlay{
-position:fixed;inset:0;background:rgba(0,0,0,0.7);
-z-index:200;display:none;align-items:center;justify-content:center;
-padding:20px;
-}
-.modal-overlay.show{display:flex}
-.modal{
-background:var(–card);border:1px solid var(–border2);
-border-radius:8px;padding:24px;width:100%;max-width:400px;
-}
-.modal-title{font-family:var(–display);font-size:16px;font-weight:700;margin-bottom:20px}
-.modal-close{
-float:right;background:none;border:none;color:var(–muted);
-font-size:18px;cursor:pointer;line-height:1;
-}
-
-/* ── PRICE SLIDER ── */
-.slider-section {
-padding: 20px 24px;
-border-bottom: 1px solid var(–border);
-background: var(–card);
-}
-.slider-header {
-display: flex; align-items: center; justify-content: space-between;
-margin-bottom: 16px;
-}
-.slider-title { font-family: var(–display); font-size: 13px; font-weight: 700; letter-spacing: 1px; }
-.slider-reset {
-font-size: 9px; letter-spacing: 1px; color: var(–muted);
-background: none; border: 1px solid var(–border2); padding: 4px 10px;
-border-radius: 3px; cursor: pointer; font-family: var(–mono);
-}
-.slider-reset:hover { color: var(–text); border-color: var(–text); }
-.slider-item { margin-bottom: 14px; }
-.slider-item-header {
-display: flex; justify-content: space-between; align-items: center;
-margin-bottom: 6px;
-}
-.slider-sym { font-size: 11px; color: var(–muted); }
-.slider-val { font-size: 13px; font-weight: 600; font-family: var(–mono); }
-input[type=range] {
-width: 100%; -webkit-appearance: none; height: 4px;
-border-radius: 2px; outline: none; cursor: pointer;
-background: linear-gradient(to right, var(–danger) 0%, var(–warn) 50%, var(–safe) 100%);
-}
-input[type=range]::-webkit-slider-thumb {
--webkit-appearance: none; width: 16px; height: 16px;
-border-radius: 50%; background: white; cursor: pointer;
-box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-}
-.slider-bounds { display: flex; justify-content: space-between; font-size: 9px; color: var(–muted); margin-top: 3px; }
-
-/* ── WHAT IF BUILDER ── */
-.whatif-section {
-padding: 20px 24px;
-border-bottom: 1px solid var(–border);
-}
-.whatif-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-end; }
-.whatif-input {
-flex: 1; padding: 8px 10px;
-background: var(–card2); border: 1px solid var(–border2);
-border-radius: 4px; color: var(–text); font-family: var(–mono); font-size: 11px;
-outline: none;
-}
-.whatif-input:focus { border-color: var(–blue); }
-.whatif-btn {
-padding: 8px 14px; border-radius: 4px;
-background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
-color: var(–blue); font-size: 10px; letter-spacing: 1px;
-cursor: pointer; font-family: var(–mono); white-space: nowrap;
-}
-.whatif-btn:hover { background: rgba(59,130,246,0.2); }
-.whatif-result {
-padding: 12px; border-radius: 6px;
-background: var(–card2); border: 1px solid var(–border);
-font-size: 11px; line-height: 2; display: none;
-}
-.whatif-result.show { display: block; }
-.wi-before { color: var(–muted); }
-.wi-after-good { color: var(–safe); font-weight: 600; }
-.wi-after-bad { color: var(–danger); font-weight: 600; }
-
-/* ── SHARE CARD ── */
-.share-btn {
-display: flex; align-items: center; gap: 6px;
-padding: 7px 12px; border-radius: 4px;
-background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2);
-color: var(–safe); font-size: 9px; letter-spacing: 1px;
-cursor: pointer; font-family: var(–mono); transition: all 0.2s;
-}
-.share-btn:hover { background: rgba(0,229,160,0.15); }
-
-/* ── ALERT BELL ── */
-.alert-btn {
-display: flex; align-items: center; gap: 6px;
-padding: 7px 12px; border-radius: 4px;
-background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2);
-color: var(–warn); font-size: 9px; letter-spacing: 1px;
-cursor: pointer; font-family: var(–mono); transition: all 0.2s;
-}
-.alert-btn:hover { background: rgba(245,166,35,0.15); }
-.alert-btn.active { background: rgba(245,166,35,0.2); border-color: var(–warn); }
-
-/* ── SHARE MODAL ── */
-.share-card {
-background: linear-gradient(135deg, #0d0d12, #1a0a1a);
-border: 1px solid rgba(255,59,92,0.3);
-border-radius: 12px; padding: 24px; margin-top: 16px;
-font-family: var(–mono);
-}
-.sc-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.sc-logo { font-family: var(–display); font-weight: 800; font-size: 16px; }
-.sc-logo span { color: var(–danger); }
-.sc-badge { font-size: 9px; letter-spacing: 2px; padding: 4px 10px; border-radius: 3px; }
-.sc-sym { font-family: var(–display); font-size: 28px; font-weight: 800; margin-bottom: 4px; }
-.sc-proto { font-size: 10px; color: var(–muted); letter-spacing: 2px; margin-bottom: 20px; }
-.sc-hf { font-size: 48px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-.sc-hflabel { font-size: 9px; letter-spacing: 3px; color: var(–muted); margin-bottom: 20px; }
-.sc-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.sc-stat-l { font-size: 8px; letter-spacing: 1.5px; color: var(–muted); text-transform: uppercase; margin-bottom: 4px; }
-.sc-stat-v { font-size: 13px; font-weight: 600; }
-.sc-footer { margin-top: 20px; font-size: 9px; color: var(–muted); letter-spacing: 1px; border-top: 1px solid var(–border); padding-top: 12px; }
-.copy-card-btn {
-width: 100%; padding: 10px; margin-top: 12px; border-radius: 4px;
-background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.3);
-color: var(–safe); font-size: 10px; letter-spacing: 2px;
-cursor: pointer; font-family: var(–mono);
-}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(–bg)}
-::-webkit-scrollbar-thumb{background:var(–border2);border-radius:2px}
+/* SHARE CARD */
+.share-card{background:linear-gradient(135deg,#0c0c10,#160814);
+border:1px solid rgba(255,59,92,.25);border-radius:10px;padding:22px;margin-bottom:12px}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.sc-logo{font-family:var(–display);font-size:15px;font-weight:800}
+.sc-logo em{font-style:normal;color:#ff3b5c}
+.sc-main{margin-bottom:18px}
+.sc-pair{font-family:var(–display);font-size:22px;font-weight:800;margin-bottom:2px}
+.sc-proto{font-size:9px;letter-spacing:2px;color:var(–muted);margin-bottom:14px}
+.sc-hf{font-size:52px;font-family:var(–display);font-weight:800;line-height:1;margin-bottom:3px}
+.sc-hfl{font-size:8px;letter-spacing:3px;color:var(–muted)}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.sc-s-l{font-size:8px;letter-spacing:1px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
+.sc-s-v{font-size:12px;font-weight:600}
+.sc-foot{margin-top:16px;padding-top:12px;border-top:1px solid var(–border);
+font-size:8px;letter-spacing:1px;color:var(–muted)}
+.copy-btn{width:100%;padding:10px;border-radius:5px;
+background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.25);
+color:var(–safe);font-size:9px;letter-spacing:2px;cursor:pointer;font-family:var(–mono)}
+.copy-btn:hover{background:rgba(0,229,160,.15)}
 
 /* TOAST */
-.toast{
-position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
-background:var(–card2);border:1px solid var(–border2);
-padding:10px 20px;border-radius:4px;font-size:11px;
-opacity:0;transition:all 0.3s;pointer-events:none;z-index:300;
-white-space:nowrap;letter-spacing:1px;
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);
+background:var(–card2);border:1px solid var(–border2);padding:9px 20px;
+border-radius:5px;font-size:10px;letter-spacing:1px;opacity:0;
+transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ANIMATIONS */
-@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.position-card{animation:slideIn 0.3s ease forwards}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(–border2);border-radius:2px}
 </style>
 
 </head>
 <body>
 
+<!-- HEADER -->
+
 <header>
   <div class="logo">
-    <div class="logo-mark">PR</div>
+    <div class="logo-hex">PR</div>
     <div>
-      <div class="logo-name">Pyth<span>Risk</span></div>
+      <div class="logo-text">Pyth<span>Risk</span></div>
       <div class="logo-sub">DeFi Liquidation Monitor</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="pyth-badge">
-      <div class="live-dot" id="liveDot"></div>
-      <span id="liveText">PYTH LIVE</span>
-    </div>
-  </div>
+  <div class="live-pill"><div class="dot" id="liveDot"></div><span id="liveText">CONNECTING</span></div>
 </header>
 
+<!-- HERO -->
+
 <div class="hero">
-  <div class="hero-eyebrow">Real-Time Risk Intelligence</div>
-  <h1>Monitor Your DeFi<br>Positions Before<br>They Get <em>Liquidated</em></h1>
-  <p>Enter your collateral and debt positions. PythRisk calculates your health factor in real time using live Pyth Network oracle prices — and alerts you before you hit the liquidation threshold.</p>
-  <div class="hero-stats">
-    <div class="hstat">
-      <div class="hstat-n" id="statPositions" style="color:var(--text)">0</div>
-      <div class="hstat-l">Positions</div>
-    </div>
-    <div class="hstat">
-      <div class="hstat-n" id="statAtRisk" style="color:var(--warn)">0</div>
-      <div class="hstat-l">At Risk</div>
-    </div>
-    <div class="hstat">
-      <div class="hstat-n" id="statDanger" style="color:var(--danger)">0</div>
-      <div class="hstat-l">Danger</div>
-    </div>
-    <div class="hstat">
-      <div class="hstat-n" id="statTVL" style="color:var(--safe)">$0</div>
-      <div class="hstat-l">Total Collateral</div>
-    </div>
+  <div class="hero-tag">Real-Time Risk Intelligence</div>
+  <h1>Monitor Your DeFi Positions<br>Before They Get <em>Liquidated</em></h1>
+  <p>Enter your collateral and debt. PythRisk calculates your health factor live using Pyth Network oracle prices — and shows exactly when you'll get liquidated.</p>
+  <div class="hero-kpis">
+    <div class="kpi"><div class="kpi-n" id="kpiPos">—</div><div class="kpi-l">Positions</div></div>
+    <div class="kpi"><div class="kpi-n" id="kpiRisk" style="color:var(--warn)">—</div><div class="kpi-l">At Risk</div></div>
+    <div class="kpi"><div class="kpi-n" id="kpiDanger" style="color:#ff3b5c">—</div><div class="kpi-l">Danger</div></div>
+    <div class="kpi"><div class="kpi-n" id="kpiTVL" style="color:var(--safe)">—</div><div class="kpi-l">Total Collateral</div></div>
   </div>
 </div>
 
-<!-- PRICE SLIDER + WHATIF -->
+<!-- TOOLBAR -->
 
-<div class="slider-section" id="sliderSection" style="display:none">
-  <div class="slider-header">
-    <div class="slider-title">PRICE SIMULATOR</div>
-    <button class="slider-reset" onclick="resetSliders()">↺ RESET TO LIVE</button>
+<div class="toolbar">
+  <button class="tb-btn tb-add" onclick="scrollToForm()">+ ADD POSITION</button>
+  <button class="tb-btn tb-slider" id="btnSlider" onclick="togglePanel('slider')">📊 PRICE SLIDER</button>
+  <button class="tb-btn tb-whatif" id="btnWhatif" onclick="togglePanel('whatif')">🔮 WHAT IF?</button>
+  <div class="tb-spacer"></div>
+  <button class="tb-btn tb-share" onclick="openShare()">↗ SHARE</button>
+  <button class="tb-btn tb-alert" id="btnAlert" onclick="toggleAlerts()">🔔 ALERTS OFF</button>
+</div>
+
+<!-- PRICE SLIDER PANEL -->
+
+<div class="panel" id="panel-slider">
+  <div class="panel-title">PRICE SIMULATOR
+    <button class="panel-close" onclick="resetSliders()">↺ RESET TO LIVE</button>
   </div>
   <div id="sliderItems"></div>
-  <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:4px">
-    ⚡ Drag to simulate any price — positions update in real time
-  </div>
+  <div style="font-size:9px;color:var(--muted);margin-top:4px">Drag to simulate any price — positions update in real time</div>
 </div>
 
-<div class="whatif-section" id="whatifSection" style="display:none">
-  <div class="slider-header">
-    <div class="slider-title">WHAT IF BUILDER</div>
-    <button class="slider-reset" onclick="clearWhatIf()">✕ CLEAR</button>
+<!-- WHAT IF PANEL -->
+
+<div class="panel" id="panel-whatif">
+  <div class="panel-title">WHAT IF BUILDER
+    <button class="panel-close" onclick="togglePanel('whatif')">✕ CLOSE</button>
   </div>
-  <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Select a position to analyze:</div>
-  <select class="form-select" id="wiPosition" style="margin-bottom:12px" onchange="updateWhatIfUI()">
-    <option value="">— select position —</option>
+  <select class="wi-pos-select" id="wiSel" onchange="updateWiUI()">
+    <option value="">— select a position to analyze —</option>
   </select>
-  <div id="wiControls" style="display:none">
-    <div class="whatif-row">
-      <div style="flex:1">
-        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">ADD COLLATERAL ($)</div>
-        <input class="whatif-input" id="wiAddColl" type="number" placeholder="e.g. 5000" min="0">
+  <div id="wiBody" style="display:none">
+    <div class="wi-grid">
+      <div class="wi-card">
+        <div class="wi-label">Add Collateral ($)</div>
+        <div class="wi-row">
+          <input class="wi-input" id="wiColl" type="number" placeholder="e.g. 5000" min="0">
+          <button class="wi-calc" onclick="runWhatIf('coll')">CALC</button>
+        </div>
       </div>
-      <button class="whatif-btn" onclick="calcWhatIf('addColl')">CALCULATE</button>
-    </div>
-    <div class="whatif-row">
-      <div style="flex:1">
-        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">REPAY DEBT ($)</div>
-        <input class="whatif-input" id="wiRepayDebt" type="number" placeholder="e.g. 2000" min="0">
+      <div class="wi-card">
+        <div class="wi-label">Repay Debt ($)</div>
+        <div class="wi-row">
+          <input class="wi-input" id="wiDebt" type="number" placeholder="e.g. 2000" min="0">
+          <button class="wi-calc" onclick="runWhatIf('debt')">CALC</button>
+        </div>
       </div>
-      <button class="whatif-btn" onclick="calcWhatIf('repayDebt')">CALCULATE</button>
-    </div>
-    <div class="whatif-row">
-      <div style="flex:1">
-        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">BORROW MORE ($)</div>
-        <input class="whatif-input" id="wiBorrowMore" type="number" placeholder="e.g. 1000" min="0">
+      <div class="wi-card">
+        <div class="wi-label">Borrow More ($)</div>
+        <div class="wi-row">
+          <input class="wi-input" id="wiBorrow" type="number" placeholder="e.g. 1000" min="0">
+          <button class="wi-calc" onclick="runWhatIf('borrow')">CALC</button>
+        </div>
       </div>
-      <button class="whatif-btn" onclick="calcWhatIf('borrowMore')">CALCULATE</button>
     </div>
-    <div class="whatif-result" id="wiResult"></div>
+    <div class="wi-result" id="wiResult"></div>
   </div>
 </div>
 
-<div class="main">
-  <!-- LEFT: POSITIONS LIST -->
-  <div class="positions-pane">
-    <div class="pane-header">
-      <div class="pane-title">YOUR POSITIONS</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="alert-btn" id="alertToggleBtn" onclick="toggleAlerts()">🔔 ALERTS OFF</button>
-        <button class="share-btn" onclick="showShareModal()">↗ SHARE</button>
-        <button class="add-btn" onclick="showAddModal()">+ ADD</button>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap">
-      <button class="stress-btn" style="margin:0;flex:1;min-width:120px" onclick="toggleSlider()">📊 PRICE SLIDER</button>
-      <button class="stress-btn" style="margin:0;flex:1;min-width:120px;border-color:rgba(59,130,246,0.3);color:var(--blue);background:rgba(59,130,246,0.08)" onclick="toggleWhatIf()">🔮 WHAT IF?</button>
-    </div>
-    <div id="positionsList">
-      <div class="empty-state">
+<!-- MAIN CONTENT -->
+
+<div class="content">
+
+  <!-- POSITIONS -->
+
+  <div class="pos-pane">
+    <div class="pos-pane-head">Your Positions</div>
+    <div id="posList">
+      <div class="empty">
         <div class="empty-icon">⬡</div>
-        <div class="empty-title">No positions yet</div>
-        <div class="empty-desc">Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</div>
+        <h3>No positions yet</h3>
+        <p>Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</p>
+        <div class="empty-cta" onclick="scrollToForm()">+ ADD YOUR FIRST POSITION</div>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT: FORM + TICKER -->
+  <!-- SIDEBAR -->
 
-  <div class="right-pane">
-    <!-- QUICK ADD FORM -->
-    <div class="form-pane">
-      <div class="form-title">QUICK ADD</div>
+  <div class="sidebar">
 
 ```
-  <div class="form-group">
-    <label class="form-label">Protocol</label>
-    <select class="form-select" id="fProtocol">
+<!-- ADD FORM -->
+<div class="form-block" id="addForm">
+  <div class="form-head">Add Position</div>
+  <div class="f-group">
+    <label class="f-label">Protocol</label>
+    <select class="f-select" id="fProto">
       <option value="Aave">Aave v3</option>
       <option value="Compound">Compound v3</option>
       <option value="MakerDAO">MakerDAO</option>
@@ -579,681 +386,492 @@ white-space:nowrap;letter-spacing:1px;
       <option value="Custom">Custom</option>
     </select>
   </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Collateral Asset</label>
-      <select class="form-select" id="fCollAsset">
+  <div class="f-row">
+    <div class="f-group">
+      <label class="f-label">Collateral</label>
+      <select class="f-select" id="fCollAsset">
+        <option value="ETH">ETH</option>
         <option value="BTC">BTC</option>
-        <option value="ETH" selected>ETH</option>
         <option value="SOL">SOL</option>
         <option value="BNB">BNB</option>
         <option value="AVAX">AVAX</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">Amount</label>
-      <input class="form-input" id="fCollAmount" type="number" placeholder="e.g. 2.5" min="0" step="any">
+    <div class="f-group">
+      <label class="f-label">Amount</label>
+      <input class="f-input" id="fCollAmt" type="number" placeholder="e.g. 2.5" step="any" min="0">
     </div>
   </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Debt Asset</label>
-      <select class="form-select" id="fDebtAsset">
-        <option value="USDC" selected>USDC</option>
+  <div class="f-row">
+    <div class="f-group">
+      <label class="f-label">Debt Asset</label>
+      <select class="f-select" id="fDebtAsset">
+        <option value="USDC">USDC</option>
         <option value="USDT">USDT</option>
         <option value="ETH">ETH</option>
         <option value="BTC">BTC</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">Debt Amount</label>
-      <input class="form-input" id="fDebtAmount" type="number" placeholder="e.g. 3000" min="0" step="any">
+    <div class="f-group">
+      <label class="f-label">Debt Amount</label>
+      <input class="f-input" id="fDebtAmt" type="number" placeholder="e.g. 3000" step="any" min="0">
     </div>
   </div>
-
-  <div class="form-group">
-    <label class="form-label">Liquidation Threshold</label>
-    <select class="form-select" id="fLiqThreshold">
-      <option value="0.85">85% (Aave ETH)</option>
-      <option value="0.80">80% (Aave BTC)</option>
-      <option value="0.75">75% (Conservative)</option>
-      <option value="0.70">70% (Compound)</option>
-      <option value="0.65">65% (Aggressive)</option>
+  <div class="f-group">
+    <label class="f-label">Liquidation Threshold</label>
+    <select class="f-select" id="fThresh">
+      <option value="0.85">85% — Aave ETH</option>
+      <option value="0.80">80% — Aave BTC</option>
+      <option value="0.75">75% — Conservative</option>
+      <option value="0.70">70% — Compound</option>
+      <option value="0.65">65% — Aggressive</option>
     </select>
   </div>
-
-  <button class="submit-btn" onclick="addPosition()">CALCULATE RISK →</button>
+  <button class="calc-btn" onclick="addPos()">CALCULATE RISK →</button>
 </div>
 
-<!-- LIVE PRICE TICKER -->
-<div class="ticker-pane">
-  <div class="ticker-title">Live Pyth Prices</div>
-  <div id="tickerList">
-    <div style="color:var(--muted);font-size:10px">Loading prices...</div>
-  </div>
+<!-- LIVE PRICES -->
+<div class="ticker-block">
+  <div class="block-head">Live Pyth Prices</div>
+  <div id="ticker"><div style="color:var(--muted);font-size:10px">Loading...</div></div>
 </div>
 
 <!-- STRESS TEST -->
-<div class="stress-pane">
-  <div class="stress-title">Stress Test</div>
-  <button class="stress-btn" onclick="stressTest(-10)">📉 Simulate −10% crash</button>
-  <button class="stress-btn" onclick="stressTest(-25)">📉 Simulate −25% crash</button>
-  <button class="stress-btn" onclick="stressTest(-50)">☠️ Simulate −50% crash</button>
-  <button class="stress-btn" onclick="stressTest(0)">🔄 Reset to live prices</button>
-  <div class="stress-result" id="stressResult"></div>
+<div class="stress-block">
+  <div class="block-head">Stress Test</div>
+  <button class="st-btn" onclick="stressTest(-10)">📉 Simulate −10% crash</button>
+  <button class="st-btn" onclick="stressTest(-25)">📉 Simulate −25% crash</button>
+  <button class="st-btn" onclick="stressTest(-50)">☠️ Simulate −50% crash</button>
+  <button class="st-btn reset" onclick="stressTest(0)">🔄 Reset to live prices</button>
+  <div class="st-result" id="stResult"></div>
 </div>
 ```
 
   </div>
 </div>
 
-<!-- ADD POSITION MODAL (mobile) -->
-
-<div class="modal-overlay" id="addModal" onclick="if(event.target===this)hideAddModal()">
-  <div class="modal">
-    <button class="modal-close" onclick="hideAddModal()">✕</button>
-    <div class="modal-title">Add Position</div>
-    <p style="font-size:11px;color:var(--muted)">Use the form on the right panel →</p>
-  </div>
-</div>
-
 <!-- SHARE MODAL -->
 
-<div class="modal-overlay" id="shareModal" onclick="if(event.target===this)hideShareModal()">
-  <div class="modal" style="max-width:360px">
-    <button class="modal-close" onclick="hideShareModal()">✕</button>
-    <div class="modal-title">Share Position</div>
-    <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Select a position to share:</div>
-    <select class="form-select" id="sharePositionSelect" style="margin-bottom:16px" onchange="renderShareCard()">
+<div class="overlay" id="shareOverlay" onclick="if(event.target===this)closeShare()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Share Position</div>
+      <button class="modal-x" onclick="closeShare()">✕</button>
+    </div>
+    <select class="m-select" id="shareSel" onchange="renderShareCard()">
       <option value="">— select position —</option>
     </select>
-    <div id="shareCardContainer"></div>
+    <div id="shareCardWrap"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════
-// STATE
-// ═══════════════════════════════════
-var prices = {}; // sym -> USD price
+// ═══════════ STATE ═══════════
+var prices={}, prevPrices={}, d24h={};
+var positions=[], posId=0;
+var stress=1.0, sliderPrices={};
+var alertsOn=false, alerted={};
+var demoLoaded=false;
 
-function getPrice(sym) {
-  return sliderPrices[sym] !== undefined ? sliderPrices[sym] : (prices[sym] || 0);
-}
-var stressMultiplier = 1.0;
-var positions = [];
-var posIdCounter = 0;
-
-// Feed IDs for assets we need
-var PRICE_FEEDS = {
-  'BTC':  '0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
-  'ETH':  '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
-  'SOL':  '0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
-  'BNB':  '0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f',
-  'AVAX': '0x93da3352f9f1d105fdfe4971cfa80e9dd777bfc5d0f683ebb6e1294b92137bb7',
-  'USDC': '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
-  'USDT': '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
-  'LINK': '0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
+var FEEDS={
+  BTC:'0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
+  ETH:'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
+  SOL:'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
+  BNB:'0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f',
+  AVAX:'0x93da3352f9f1d105fdfe4971cfa80e9dd777bfc5d0f683ebb6e1294b92137bb7',
+  USDC:'0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
+  USDT:'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
+  LINK:'0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
 };
+var PROTO_COLORS={Aave:'#B6509E',Compound:'#00D395',MakerDAO:'#F5AC37',Venus:'#F0B90B',Custom:'#4f8fff'};
 
-var prevPrices = {};
+function getP(sym){return sliderPrices[sym]!==undefined?sliderPrices[sym]:(prices[sym]||0)}
 
-// Protocol colors
-var PROTO_COLORS = {
-  'Aave': '#B6509E', 'Compound': '#00D395',
-  'MakerDAO': '#F5AC37', 'Venus': '#F0B90B', 'Custom': '#3b82f6'
-};
-
-// ═══════════════════════════════════
-// FETCH PRICES from Pyth Hermes
-// ═══════════════════════════════════
-async function fetchPrices() {
-  var ids = Object.values(PRICE_FEEDS);
-  var params = ids.map(function(id){ return 'ids[]=' + id; }).join('&');
-  var url = 'https://hermes.pyth.network/v2/updates/price/latest?' + params + '&parsed=true';
-
-  try {
-    var r = await fetch(url, {signal: AbortSignal.timeout(6000)});
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    var d = await r.json();
-
-    prevPrices = Object.assign({}, prices);
-    var syms = Object.keys(PRICE_FEEDS);
-    var vals = Object.values(PRICE_FEEDS);
-
-    d.parsed.forEach(function(item) {
-      var id = '0x' + item.id;
-      var sym = syms[vals.indexOf(id)];
-      if (sym) {
-        prices[sym] = item.price.price * Math.pow(10, item.price.expo);
-      }
+// ═══════════ FETCH ═══════════
+async function fetchPrices(){
+  var ids=Object.values(FEEDS);
+  var params=ids.map(function(i){return'ids[]='+i}).join('&');
+  try{
+    var r=await fetch('https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true',{signal:AbortSignal.timeout(7000)});
+    if(!r.ok) throw new Error(r.status);
+    var d=await r.json();
+    prevPrices=Object.assign({},prices);
+    var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
+    d.parsed.forEach(function(item){
+      var id='0x'+item.id,sym=syms[vals.indexOf(id)];
+      if(sym) prices[sym]=item.price.price*Math.pow(10,item.price.expo);
     });
-
-    document.getElementById('liveText').textContent = 'PYTH LIVE';
-    checkAlerts();
-    if (sliderVisible) buildSliders();
-    document.getElementById('liveDot').style.background = 'var(--safe)';
-    updateTicker();
-    updateAllPositions();
-  } catch(e) {
-    document.getElementById('liveText').textContent = 'RECONNECTING';
-    document.getElementById('liveDot').style.background = 'var(--warn)';
+    document.getElementById('liveText').textContent='PYTH LIVE';
+    document.getElementById('liveDot').style.background='var(--safe)';
+    if(!demoLoaded){demoLoaded=true;loadDemo();}
+    updateTicker();renderAll();checkAlerts();
+    if(document.getElementById('panel-slider').classList.contains('show')) buildSliders();
+  }catch(e){
+    document.getElementById('liveText').textContent='RECONNECTING';
+    document.getElementById('liveDot').style.background='var(--warn)';
+    if(!demoLoaded){demoLoaded=true;loadDemo();}
   }
 }
 
-// ═══════════════════════════════════
-// TICKER
-// ═══════════════════════════════════
-function updateTicker() {
-  var syms = ['BTC','ETH','SOL','BNB','AVAX'];
-  var html = '';
-  syms.forEach(function(sym) {
-    var p = prices[sym];
-    if (!p) { html += '<div class="ticker-item"><span class="ticker-sym">' + sym + '/USD</span><span class="ticker-price" style="color:var(--muted)">—</span></div>'; return; }
-    var prev = prevPrices[sym];
-    var chg = prev ? ((p - prev) / prev * 100) : 0;
-    var chgStr = chg === 0 ? '' : (chg > 0 ? '<span class="up">▲' : '<span class="dn">▼') + Math.abs(chg).toFixed(3) + '%</span>';
-    var pStr = p >= 1000 ? '$' + p.toLocaleString('en-US',{maximumFractionDigits:2}) : '$' + p.toFixed(4);
-    html += '<div class="ticker-item"><span class="ticker-sym">' + sym + '/USD</span><span class="ticker-price">' + pStr + '</span>' + chgStr + '</div>';
-  });
-  document.getElementById('tickerList').innerHTML = html;
+async function fetch24h(){
+  var ts=Math.floor(Date.now()/1000)-86400;
+  var ids=Object.values(FEEDS);
+  var params=ids.map(function(i){return'ids[]='+i}).join('&');
+  try{
+    var r=await fetch('https://hermes.pyth.network/v2/updates/price/'+ts+'?'+params+'&parsed=true',{signal:AbortSignal.timeout(8000)});
+    if(!r.ok) return;
+    var d=await r.json();
+    var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
+    d.parsed.forEach(function(item){
+      var id='0x'+item.id,sym=syms[vals.indexOf(id)];
+      if(sym) d24h[sym]=item.price.price*Math.pow(10,item.price.expo);
+    });
+    renderAll();
+  }catch(e){}
 }
 
-// ═══════════════════════════════════
-// HEALTH FACTOR CALCULATION
-// Aave formula: HF = (collateral_USD * liq_threshold) / debt_USD
-// ═══════════════════════════════════
-function calcHealth(pos) {
-  var collPrice = (getPrice(pos.collAsset) || 0) * stressMultiplier;
-  var debtPrice = pos.debtAsset === 'USDC' || pos.debtAsset === 'USDT' ? 1.0 : (getPrice(pos.debtAsset) || 0) * stressMultiplier;
-
-  var collUSD = pos.collAmount * collPrice;
-  var debtUSD = pos.debtAmount * debtPrice;
-
-  if (debtUSD === 0) return { hf: 999, collUSD, debtUSD, liqPrice: 0, dropPct: 100 };
-
-  var hf = (collUSD * pos.liqThreshold) / debtUSD;
-
-  // Price at which liquidation occurs
-  var liqPrice = (debtUSD / (pos.collAmount * pos.liqThreshold));
-  var dropPct = collPrice > 0 ? ((collPrice - liqPrice) / collPrice * 100) : 0;
-
-  return { hf, collUSD, debtUSD, liqPrice, dropPct };
-}
-
-function healthStatus(hf) {
-  if (hf >= 2.0) return 'safe';
-  if (hf >= 1.3) return 'warn';
-  if (hf > 1.0) return 'danger';
-  return 'dead';
-}
-
-function healthLabel(hf) {
-  if (hf >= 2.0) return 'SAFE';
-  if (hf >= 1.3) return 'WARNING';
-  if (hf > 1.0) return 'DANGER';
-  return 'LIQUIDATED';
-}
-
-function healthColor(status) {
-  return {safe:'var(--safe)',warn:'var(--warn)',danger:'var(--danger)',dead:'var(--dead)'}[status];
-}
-
-// ═══════════════════════════════════
-// RENDER POSITIONS
-// ═══════════════════════════════════
-function renderPositions() {
-  if (whatifVisible) updateWhatIfUI();
-  var list = document.getElementById('positionsList');
-  if (positions.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">⬡</div><div class="empty-title">No positions yet</div><div class="empty-desc">Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</div></div>';
-    updateStats();
-    return;
-  }
-
-  var html = '';
-  positions.forEach(function(pos) {
-    var calc = calcHealth(pos);
-    var status = healthStatus(calc.hf);
-    var color = healthColor(status);
-    var pct = Math.min(100, Math.max(0, (calc.hf / 3) * 100));
-    var barColor = color;
-    var protoColor = PROTO_COLORS[pos.protocol] || '#6b7280';
-    var collPriceStr = prices[pos.collAsset] ? '$' + (prices[pos.collAsset]*stressMultiplier).toLocaleString('en-US',{maximumFractionDigits:2}) : '—';
-
-    var warningMsg = '';
-    if (status === 'safe') warningMsg = '<div class="liq-warning liq-safe">✓ Position is healthy. Liquidation at $' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + ' (' + calc.dropPct.toFixed(1) + '% drop needed)</div>';
-    else if (status === 'warn') warningMsg = '<div class="liq-warning liq-warn">⚠ Approaching risk zone. Price must drop ' + calc.dropPct.toFixed(1) + '% to liquidate. Reduce debt or add collateral.</div>';
-    else if (status === 'danger') warningMsg = '<div class="liq-warning liq-danger">🚨 DANGER — only ' + calc.dropPct.toFixed(1) + '% drop to liquidation! Act immediately.</div>';
-    else warningMsg = '<div class="liq-warning liq-dead">☠ LIQUIDATED — health factor below 1.0. This position would be seized.</div>';
-
-    html += '<div class="position-card ' + status + '" id="pos-' + pos.id + '">'
-      + '<div class="pc-top">'
-        + '<div class="pc-protocol">'
-          + '<div class="proto-icon" style="background:' + protoColor + '22;color:' + protoColor + '">' + pos.protocol.slice(0,2).toUpperCase() + '</div>'
-          + '<div><div class="pc-name">' + pos.protocol + '</div><div class="pc-type">' + pos.collAsset + ' → ' + pos.debtAsset + '</div></div>'
-        + '</div>'
-        + '<div style="display:flex;align-items:center;gap:8px">'
-          + '<span class="health-badge badge-' + status + '">' + healthLabel(calc.hf) + '</span>'
-          + '<button onclick="removePosition(' + pos.id + ');event.stopPropagation()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;">×</button>'
-        + '</div>'
-      + '</div>'
-      + '<div class="health-bar-wrap">'
-        + '<div class="health-bar-labels"><span>Health Factor</span><span style="color:' + color + ';font-weight:500">' + (calc.hf === 999 ? '∞' : calc.hf.toFixed(3)) + '</span></div>'
-        + '<div class="health-bar-track"><div class="health-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>'
-      + '</div>'
-      + '<div class="pc-metrics">'
-        + '<div class="pc-metric"><div class="pc-metric-l">Collateral</div><div class="pc-metric-v">$' + calc.collUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div></div>'
-        + '<div class="pc-metric"><div class="pc-metric-l">Debt</div><div class="pc-metric-v">$' + calc.debtUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div></div>'
-        + '<div class="pc-metric"><div class="pc-metric-l">LTV</div><div class="pc-metric-v">' + (calc.collUSD > 0 ? (calc.debtUSD/calc.collUSD*100).toFixed(1) : '0') + '%</div></div>'
-        + '<div class="pc-metric"><div class="pc-metric-l">' + pos.collAsset + ' Price</div><div class="pc-metric-v">' + collPriceStr + '</div></div>'
-        + '<div class="pc-metric"><div class="pc-metric-l">Liq. Price</div><div class="pc-metric-v" style="color:' + color + '">$' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + '</div></div>'
-        + '<div class="pc-metric"><div class="pc-metric-l">Drop to Liq.</div><div class="pc-metric-v" style="color:' + color + '">' + calc.dropPct.toFixed(1) + '%</div></div>'
-      + '</div>'
-      + warningMsg
-    + '</div>';
-  });
-
-  list.innerHTML = html;
-  updateStats();
-}
-
-function updateStats() {
-  var atRisk = 0, danger = 0, tvl = 0;
-  positions.forEach(function(pos) {
-    var calc = calcHealth(pos);
-    var s = healthStatus(calc.hf);
-    if (s === 'warn') atRisk++;
-    if (s === 'danger' || s === 'dead') danger++;
-    tvl += calc.collUSD;
-  });
-  document.getElementById('statPositions').textContent = positions.length;
-  document.getElementById('statAtRisk').textContent = atRisk;
-  document.getElementById('statDanger').textContent = danger;
-  document.getElementById('statTVL').textContent = '$' + tvl.toLocaleString('en-US',{maximumFractionDigits:0});
-}
-
-function updateAllPositions() {
-  if (positions.length > 0) renderPositions();
-  else updateStats();
-}
-
-// ═══════════════════════════════════
-// ADD / REMOVE POSITIONS
-// ═══════════════════════════════════
-function addPosition() {
-  var protocol = document.getElementById('fProtocol').value;
-  var collAsset = document.getElementById('fCollAsset').value;
-  var collAmount = parseFloat(document.getElementById('fCollAmount').value);
-  var debtAsset = document.getElementById('fDebtAsset').value;
-  var debtAmount = parseFloat(document.getElementById('fDebtAmount').value);
-  var liqThreshold = parseFloat(document.getElementById('fLiqThreshold').value);
-
-  if (!collAmount || !debtAmount || isNaN(collAmount) || isNaN(debtAmount)) {
-    showToast('Please enter collateral and debt amounts');
-    return;
-  }
-  if (collAmount <= 0 || debtAmount <= 0) {
-    showToast('Amounts must be greater than 0');
-    return;
-  }
-
-  positions.push({
-    id: ++posIdCounter,
-    protocol, collAsset, collAmount,
-    debtAsset, debtAmount, liqThreshold,
-  });
-
-  document.getElementById('fCollAmount').value = '';
-  document.getElementById('fDebtAmount').value = '';
-  renderPositions();
-  showToast('Position added — monitoring live');
-}
-
-function removePosition(id) {
-  positions = positions.filter(function(p){ return p.id !== id; });
-  renderPositions();
-  showToast('Position removed');
-}
-
-// ═══════════════════════════════════
-// STRESS TEST
-// ═══════════════════════════════════
-function stressTest(pct) {
-  stressMultiplier = pct === 0 ? 1.0 : 1 + (pct / 100);
-  var result = document.getElementById('stressResult');
-
-  if (pct === 0) {
-    result.classList.remove('show');
-    renderPositions();
-    showToast('Reset to live prices');
-    return;
-  }
-
-  var dangerCount = 0;
-  positions.forEach(function(pos) {
-    var calc = calcHealth(pos);
-    if (healthStatus(calc.hf) === 'danger' || healthStatus(calc.hf) === 'dead') dangerCount++;
-  });
-
-  result.innerHTML = '📉 Simulating ' + pct + '% price drop across all assets\n'
-    + (positions.length === 0 ? 'No positions to test — add some first' : dangerCount + '/' + positions.length + ' positions would be at risk of liquidation');
-  result.classList.add('show');
-  renderPositions();
-  showToast('Stress test: ' + pct + '% crash applied');
-}
-
-// ═══════════════════════════════════
-// MODAL
-// ═══════════════════════════════════
-function showAddModal() {
-  // On mobile, scroll to form
-  document.querySelector('.form-pane').scrollIntoView({behavior:'smooth'});
-}
-function hideAddModal() {
-  document.getElementById('addModal').classList.remove('show');
-}
-
-// ═══════════════════════════════════
-// TOAST
-// ═══════════════════════════════════
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 2500);
-}
-
-// ═══════════════════════════════════
-// DEMO POSITIONS (preloaded)
-// ═══════════════════════════════════
-function loadDemoPositions() {
-  positions = [
-    {id:++posIdCounter,protocol:'Aave',collAsset:'ETH',collAmount:5,debtAsset:'USDC',debtAmount:7000,liqThreshold:0.85},
-    {id:++posIdCounter,protocol:'Compound',collAsset:'BTC',collAmount:0.15,debtAsset:'USDC',debtAmount:8000,liqThreshold:0.80},
-    {id:++posIdCounter,protocol:'MakerDAO',collAsset:'ETH',collAmount:2,debtAsset:'USDC',debtAmount:4500,liqThreshold:0.75},
+// ═══════════ DEMO ═══════════
+function loadDemo(){
+  positions=[
+    {id:++posId,proto:'Aave',coll:'ETH',collAmt:5,debt:'USDC',debtAmt:7000,thresh:0.85},
+    {id:++posId,proto:'Compound',coll:'BTC',collAmt:0.15,debt:'USDC',debtAmt:8000,thresh:0.80},
+    {id:++posId,proto:'MakerDAO',coll:'ETH',collAmt:2,debt:'USDC',debtAmt:4500,thresh:0.75},
   ];
-  renderPositions();
+  renderAll();
 }
 
-
-// ═══════════════════════════════════
-// PRICE SLIDER
-// ═══════════════════════════════════
-var sliderPrices = {}; // overrides for live prices
-var sliderVisible = false;
-var whatifVisible = false;
-
-function toggleSlider() {
-  sliderVisible = !sliderVisible;
-  var el = document.getElementById('sliderSection');
-  el.style.display = sliderVisible ? 'block' : 'none';
-  if (sliderVisible) buildSliders();
+// ═══════════ CALC ═══════════
+function calcHF(pos){
+  var cp=getP(pos.coll)*stress;
+  var dp=(pos.debt==='USDC'||pos.debt==='USDT')?1.0:getP(pos.debt)*stress;
+  var cUSD=pos.collAmt*cp, dUSD=pos.debtAmt*dp;
+  if(dUSD===0) return{hf:999,cUSD,dUSD,liqP:0,drop:100};
+  var hf=(cUSD*pos.thresh)/dUSD;
+  var liqP=dUSD/(pos.collAmt*pos.thresh);
+  var drop=cp>0?((cp-liqP)/cp*100):0;
+  return{hf,cUSD,dUSD,liqP,drop};
 }
 
-function buildSliders() {
-  var syms = ['BTC','ETH','SOL','BNB','AVAX'];
-  var html = '';
-  syms.forEach(function(sym) {
-    var live = prices[sym] || 0;
-    var current = sliderPrices[sym] || live;
-    if (!live) return;
-    var min = Math.round(live * 0.3);
-    var max = Math.round(live * 2.0);
-    var pct = ((current - min) / (max - min) * 100).toFixed(0);
-    html += '<div class="slider-item">'
-      + '<div class="slider-item-header">'
-        + '<span class="slider-sym">' + sym + '/USD</span>'
-        + '<span class="slider-val" id="sv-' + sym + '" style="color:' + (sliderPrices[sym] ? 'var(--warn)' : 'var(--text)') + '">$' + current.toLocaleString('en-US',{maximumFractionDigits:2}) + (sliderPrices[sym] ? ' ✎' : '') + '</span>'
-      + '</div>'
-      + '<input type="range" min="' + min + '" max="' + max + '" value="' + Math.round(current) + '" step="' + Math.max(1, Math.round(live*0.001)) + '" oninput="onSlider('' + sym + '',this.value,this,' + min + ',' + max + ')">'
-      + '<div class="slider-bounds"><span>$' + min.toLocaleString() + '</span><span style="color:var(--muted)">Live: $' + live.toLocaleString('en-US',{maximumFractionDigits:2}) + '</span><span>$' + max.toLocaleString() + '</span></div>'
-    + '</div>';
+function status(hf){return hf>=2?'safe':hf>=1.3?'warn':hf>1?'danger':'dead'}
+function statusLabel(hf){return hf>=2?'SAFE':hf>=1.3?'WARNING':hf>1?'DANGER':'LIQUIDATED'}
+function statusColor(s){return{safe:'var(--safe)',warn:'var(--warn)',danger:'#ff3b5c',dead:'var(--muted)'}[s]}
+
+// ═══════════ RENDER ═══════════
+function renderAll(){
+  var list=document.getElementById('posList');
+  if(!positions.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">⬡</div><h3>No positions yet</h3><p>Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</p><div class="empty-cta" onclick="scrollToForm()">+ ADD YOUR FIRST POSITION</div></div>';
+    updateKPIs();return;
+  }
+  var html='';
+  positions.forEach(function(pos){
+    var c=calcHF(pos),s=status(c.hf),col=statusColor(s);
+    var pct=Math.min(100,Math.max(0,(c.hf/3)*100));
+    var pc=getP(pos.coll)*stress;
+    var pcStr=pc?'$'+pc.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
+    var hfStr=c.hf===999?'∞':c.hf.toFixed(3);
+    var ltv=c.cUSD>0?(c.dUSD/c.cUSD*100).toFixed(1)+'%':'—';
+    var proto_c=PROTO_COLORS[pos.proto]||'#4f8fff';
+
+    // 24h change for coll asset
+    var chg='';
+    if(d24h[pos.coll]&&prices[pos.coll]){
+      var pct24=(prices[pos.coll]-d24h[pos.coll])/d24h[pos.coll]*100;
+      chg=' <span style="font-size:9px;color:'+(pct24>=0?'var(--safe)':'#ff3b5c')+'">'+(pct24>=0?'▲':'▼')+Math.abs(pct24).toFixed(2)+'%</span>';
+    }
+
+    var abClass='ab-'+s;
+    var abMsg=s==='safe'?'✓ Healthy. Liquidation at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+' ('+c.drop.toFixed(1)+'% drop needed)'
+      :s==='warn'?'⚠ Approaching risk zone. '+c.drop.toFixed(1)+'% drop triggers liquidation. Consider reducing debt.'
+      :s==='danger'?'🚨 CRITICAL — only '+c.drop.toFixed(1)+'% price drop to liquidation! Act now.'
+      :'☠ LIQUIDATED — health factor ≤ 1.0. This position would be seized by the protocol.';
+
+    html+='<div class="pos-card '+s+'">'
+      +'<div class="pc-row1">'
+        +'<div class="pc-left">'
+          +'<div class="pc-icon" style="background:'+proto_c+'22;color:'+proto_c+'">'+pos.proto.slice(0,2).toUpperCase()+'</div>'
+          +'<div><div class="pc-name">'+pos.proto+'</div><div class="pc-pair">'+pos.coll+' → '+pos.debt+'</div></div>'
+        +'</div>'
+        +'<div class="pc-right">'
+          +'<span class="badge '+s+'">'+statusLabel(c.hf)+'</span>'
+          +'<button class="del-btn" onclick="delPos('+pos.id+')">×</button>'
+        +'</div>'
+      +'</div>'
+      +'<div class="hf-wrap">'
+        +'<div class="hf-head"><span class="hf-label">Health Factor</span><span class="hf-val" style="color:'+col+'">'+hfStr+'</span></div>'
+        +'<div class="hf-track"><div class="hf-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+      +'</div>'
+      +'<div class="pc-metrics">'
+        +'<div class="pc-m"><div class="pc-m-l">Collateral</div><div class="pc-m-v">$'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+        +'<div class="pc-m"><div class="pc-m-l">Debt</div><div class="pc-m-v">$'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+        +'<div class="pc-m"><div class="pc-m-l">LTV</div><div class="pc-m-v">'+ltv+'</div></div>'
+        +'<div class="pc-m"><div class="pc-m-l">'+pos.coll+' Price</div><div class="pc-m-v">'+pcStr+chg+'</div></div>'
+        +'<div class="pc-m"><div class="pc-m-l">Liq. Price</div><div class="pc-m-v" style="color:'+col+'">$'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
+        +'<div class="pc-m"><div class="pc-m-l">Drop to Liq.</div><div class="pc-m-v" style="color:'+col+'">'+c.drop.toFixed(1)+'%</div></div>'
+      +'</div>'
+      +'<div class="alert-box '+abClass+'">'+abMsg+'</div>'
+    +'</div>';
   });
-  document.getElementById('sliderItems').innerHTML = html;
+  list.innerHTML=html;
+  updateKPIs();
 }
 
-function onSlider(sym, val, input, min, max) {
-  val = parseFloat(val);
-  var live = prices[sym] || 0;
-  if (Math.abs(val - live) < live * 0.005) {
-    delete sliderPrices[sym];
+function updateKPIs(){
+  var risk=0,danger=0,tvl=0;
+  positions.forEach(function(p){var c=calcHF(p),s=status(c.hf);if(s==='warn')risk++;if(s==='danger'||s==='dead')danger++;tvl+=c.cUSD;});
+  document.getElementById('kpiPos').textContent=positions.length;
+  document.getElementById('kpiRisk').textContent=risk;
+  document.getElementById('kpiDanger').textContent=danger;
+  document.getElementById('kpiTVL').textContent='$'+tvl.toLocaleString('en-US',{maximumFractionDigits:0});
+}
+
+// ═══════════ TICKER ═══════════
+function updateTicker(){
+  var syms=['BTC','ETH','SOL','BNB','AVAX'];
+  var html='';
+  syms.forEach(function(sym){
+    var p=prices[sym],prev=prevPrices[sym];
+    if(!p){html+='<div class="tick-row"><span class="tick-sym">'+sym+'</span><span class="tick-p" style="color:var(--muted)">—</span></div>';return;}
+    var ps=p>=1000?'$'+p.toLocaleString('en-US',{maximumFractionDigits:2}):'$'+p.toFixed(4);
+    var chg=prev&&prev!==p?((p-prev)/prev*100):0;
+    var cs=chg>0?'<span class="up">▲'+chg.toFixed(3)+'%</span>':chg<0?'<span class="dn">▼'+Math.abs(chg).toFixed(3)+'%</span>':'';
+    html+='<div class="tick-row"><span class="tick-sym">'+sym+'/USD</span><span class="tick-p">'+ps+'</span>'+cs+'</div>';
+  });
+  document.getElementById('ticker').innerHTML=html;
+}
+
+// ═══════════ ADD/REMOVE ═══════════
+function addPos(){
+  var cAmt=parseFloat(document.getElementById('fCollAmt').value);
+  var dAmt=parseFloat(document.getElementById('fDebtAmt').value);
+  if(!cAmt||!dAmt||cAmt<=0||dAmt<=0){toast('Enter valid collateral and debt amounts');return;}
+  positions.push({
+    id:++posId,
+    proto:document.getElementById('fProto').value,
+    coll:document.getElementById('fCollAsset').value,
+    collAmt:cAmt,
+    debt:document.getElementById('fDebtAsset').value,
+    debtAmt:dAmt,
+    thresh:parseFloat(document.getElementById('fThresh').value),
+  });
+  document.getElementById('fCollAmt').value='';
+  document.getElementById('fDebtAmt').value='';
+  renderAll();
+  toast('Position added — monitoring live ✓');
+}
+
+function delPos(id){
+  positions=positions.filter(function(p){return p.id!==id;});
+  renderAll();toast('Position removed');
+}
+
+// ═══════════ STRESS TEST ═══════════
+function stressTest(pct){
+  stress=pct===0?1.0:1+(pct/100);
+  var r=document.getElementById('stResult');
+  if(pct===0){r.classList.remove('show');renderAll();toast('Reset to live prices');return;}
+  var at=0;
+  positions.forEach(function(p){var c=calcHF(p);if(status(c.hf)==='danger'||status(c.hf)==='dead')at++;});
+  r.innerHTML='📉 '+Math.abs(pct)+'% crash simulated across all assets\n'
+    +(positions.length?at+'/'+positions.length+' positions at liquidation risk':'No positions to test yet');
+  r.classList.add('show');
+  renderAll();toast('Stress test applied: '+pct+'% crash');
+}
+
+// ═══════════ PRICE SLIDER ═══════════
+function togglePanel(id){
+  var el=document.getElementById('panel-'+id);
+  var isOpen=el.classList.contains('show');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('show');});
+  document.getElementById('btnSlider').classList.remove('on');
+  document.getElementById('btnWhatif').classList.remove('on');
+  if(!isOpen){
+    el.classList.add('show');
+    document.getElementById('btn'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('on');
+    if(id==='slider') buildSliders();
+    if(id==='whatif') populateWiSelect();
+  }
+}
+
+function buildSliders(){
+  var syms=['BTC','ETH','SOL','BNB','AVAX'];
+  var html='';
+  syms.forEach(function(sym){
+    var live=prices[sym]||0;if(!live)return;
+    var cur=sliderPrices[sym]!==undefined?sliderPrices[sym]:live;
+    var min=Math.round(live*0.25),max=Math.round(live*2.5);
+    var modified=sliderPrices[sym]!==undefined;
+    html+='<div class="sl-item">'
+      +'<div class="sl-head"><span class="sl-sym">'+sym+'/USD</span>'
+        +'<span class="sl-val" id="sv-'+sym+'" style="color:'+(modified?'var(--warn)':'var(--text)')+'">$'+cur.toLocaleString('en-US',{maximumFractionDigits:2})+(modified?' ✎':'')+'</span>'
+      +'</div>'
+      +'<input type="range" min="'+min+'" max="'+max+'" value="'+Math.round(cur)+'" step="'+Math.max(1,Math.round(live*0.001))+'" oninput="onSlide(\''+sym+'\',this.value)">'
+      +'<div class="sl-bounds"><span>$'+min.toLocaleString()+'</span><span style="color:var(--muted)">Live: $'+live.toLocaleString('en-US',{maximumFractionDigits:2})+'</span><span>$'+max.toLocaleString()+'</span></div>'
+    +'</div>';
+  });
+  document.getElementById('sliderItems').innerHTML=html||'<div style="color:var(--muted);font-size:10px">Waiting for prices...</div>';
+}
+
+function onSlide(sym,val){
+  val=parseFloat(val);
+  var live=prices[sym]||0;
+  if(Math.abs(val-live)<live*0.005) delete sliderPrices[sym];
+  else sliderPrices[sym]=val;
+  var el=document.getElementById('sv-'+sym);
+  if(el){el.textContent='$'+val.toLocaleString('en-US',{maximumFractionDigits:2})+(sliderPrices[sym]?' ✎':'');
+    el.style.color=sliderPrices[sym]?'var(--warn)':'var(--text)';}
+  renderAll();
+}
+
+function resetSliders(){
+  sliderPrices={};buildSliders();renderAll();toast('Reset to live prices');
+}
+
+// ═══════════ WHAT IF ═══════════
+function populateWiSelect(){
+  var sel=document.getElementById('wiSel');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">— select a position to analyze —</option>';
+  positions.forEach(function(p){
+    var o=document.createElement('option');
+    o.value=p.id;o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);
+  });
+  if(cur) sel.value=cur;
+  updateWiUI();
+}
+
+function updateWiUI(){
+  document.getElementById('wiBody').style.display=document.getElementById('wiSel').value?'block':'none';
+  document.getElementById('wiResult').classList.remove('show');
+}
+
+function runWhatIf(type){
+  var id=parseInt(document.getElementById('wiSel').value);
+  var pos=positions.find(function(p){return p.id===id;});
+  if(!pos){toast('Select a position first');return;}
+  var before=calcHF(pos),np=Object.assign({},pos);
+  if(type==='coll'){
+    var add=parseFloat(document.getElementById('wiColl').value)||0;
+    np.collAmt=pos.collAmt+(add/(getP(pos.coll)||1));
+  } else if(type==='debt'){
+    var rep=parseFloat(document.getElementById('wiDebt').value)||0;
+    var dp=(pos.debt==='USDC'||pos.debt==='USDT')?1:(getP(pos.debt)||1);
+    np.debtAmt=Math.max(0,pos.debtAmt-(rep/dp));
   } else {
-    sliderPrices[sym] = val;
+    var bor=parseFloat(document.getElementById('wiBorrow').value)||0;
+    var bp=(pos.debt==='USDC'||pos.debt==='USDT')?1:(getP(pos.debt)||1);
+    np.debtAmt=pos.debtAmt+(bor/bp);
   }
-  var el = document.getElementById('sv-' + sym);
-  if (el) {
-    el.textContent = '$' + val.toLocaleString('en-US',{maximumFractionDigits:2}) + (sliderPrices[sym] ? ' ✎' : '');
-    el.style.color = sliderPrices[sym] ? 'var(--warn)' : 'var(--text)';
-  }
-  renderPositions();
+  var after=calcHF(np);
+  var better=after.hf>before.hf;
+  var bS=status(before.hf),aS=status(after.hf);
+  var res=document.getElementById('wiResult');
+  res.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
+    +'<div><div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">BEFORE</div>'
+      +'<div style="font-size:22px;font-weight:700;font-family:var(--display);color:'+statusColor(bS)+'">'+( before.hf===999?'∞':before.hf.toFixed(3))+'</div>'
+      +'<div style="font-size:9px;color:var(--muted)">'+statusLabel(before.hf)+'</div></div>'
+    +'<div><div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">AFTER</div>'
+      +'<div style="font-size:22px;font-weight:700;font-family:var(--display);color:'+statusColor(aS)+'">'+( after.hf===999?'∞':after.hf.toFixed(3))+'</div>'
+      +'<div style="font-size:9px;color:'+(better?'var(--safe)':'#ff3b5c')+'">'+(better?'▲ IMPROVED':'▼ WORSENED')+'</div></div>'
+  +'</div>'
+  +'<div style="margin-top:12px;font-size:10px;color:var(--muted)">New liquidation price: '
+    +'<strong style="color:'+statusColor(aS)+'">$'+after.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong></div>';
+  res.classList.add('show');
 }
 
-function resetSliders() {
-  sliderPrices = {};
-  buildSliders();
-  renderPositions();
-  showToast('Reset to live prices');
-}
-
-// Override price lookup with slider values
-function getPrice(sym) {
-  return sliderPrices[sym] !== undefined ? sliderPrices[sym] : (prices[sym] || 0);
-}
-
-// ═══════════════════════════════════
-// WHAT IF BUILDER
-// ═══════════════════════════════════
-function toggleWhatIf() {
-  whatifVisible = !whatifVisible;
-  var el = document.getElementById('whatifSection');
-  el.style.display = whatifVisible ? 'block' : 'none';
-  if (whatifVisible) updateWhatIfUI();
-}
-
-function updateWhatIfUI() {
-  var sel = document.getElementById('wiPosition');
-  // rebuild options
-  var current = sel.value;
-  sel.innerHTML = '<option value="">— select position —</option>';
-  positions.forEach(function(pos) {
-    var opt = document.createElement('option');
-    opt.value = pos.id;
-    opt.textContent = pos.protocol + ' — ' + pos.collAsset + '→' + pos.debtAsset;
-    sel.appendChild(opt);
-  });
-  if (current) sel.value = current;
-  document.getElementById('wiControls').style.display = sel.value ? 'block' : 'none';
-  document.getElementById('wiResult').classList.remove('show');
-}
-
-function calcWhatIf(type) {
-  var posId = parseInt(document.getElementById('wiPosition').value);
-  var pos = positions.find(function(p){ return p.id === posId; });
-  if (!pos) { showToast('Select a position first'); return; }
-
-  var calc = calcHealth(pos);
-  var beforeHF = calc.hf;
-  var beforeStatus = healthStatus(beforeHF);
-
-  var newPos = Object.assign({}, pos);
-
-  if (type === 'addColl') {
-    var addUSD = parseFloat(document.getElementById('wiAddColl').value) || 0;
-    var collPrice = getPrice(pos.collAsset) || 1;
-    newPos.collAmount = pos.collAmount + (addUSD / collPrice);
-  } else if (type === 'repayDebt') {
-    var repayUSD = parseFloat(document.getElementById('wiRepayDebt').value) || 0;
-    var debtPrice = (pos.debtAsset === 'USDC' || pos.debtAsset === 'USDT') ? 1 : (getPrice(pos.debtAsset) || 1);
-    newPos.debtAmount = Math.max(0, pos.debtAmount - (repayUSD / debtPrice));
-  } else if (type === 'borrowMore') {
-    var borrowUSD = parseFloat(document.getElementById('wiBorrowMore').value) || 0;
-    var dPrice = (pos.debtAsset === 'USDC' || pos.debtAsset === 'USDT') ? 1 : (getPrice(pos.debtAsset) || 1);
-    newPos.debtAmount = pos.debtAmount + (borrowUSD / dPrice);
-  }
-
-  var newCalc = calcHealth(newPos);
-  var afterHF = newCalc.hf;
-  var afterStatus = healthStatus(afterHF);
-  var improved = afterHF > beforeHF;
-
-  var labels = {addColl:'Adding collateral',repayDebt:'Repaying debt',borrowMore:'Borrowing more'};
-  var result = document.getElementById('wiResult');
-  result.innerHTML = '<div style="margin-bottom:8px;font-size:10px;color:var(--muted);letter-spacing:1px">' + labels[type].toUpperCase() + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-      + '<div><div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">BEFORE</div>'
-        + '<div style="font-size:18px;font-weight:700;color:' + healthColor(beforeStatus) + '">' + beforeHF.toFixed(3) + '</div>'
-        + '<div style="font-size:9px;color:var(--muted)">' + healthLabel(beforeHF) + '</div></div>'
-      + '<div><div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">AFTER</div>'
-        + '<div style="font-size:18px;font-weight:700;color:' + healthColor(afterStatus) + '">' + afterHF.toFixed(3) + '</div>'
-        + '<div style="font-size:9px;color:' + (improved ? 'var(--safe)' : 'var(--danger)') + '">' + (improved ? '▲ IMPROVED' : '▼ WORSENED') + '</div></div>'
-    + '</div>'
-    + '<div style="margin-top:10px;font-size:10px;color:var(--muted)">New liquidation price: <strong style="color:' + healthColor(afterStatus) + '">$' + newCalc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + '</strong></div>';
-  result.classList.add('show');
-}
-
-function clearWhatIf() {
-  document.getElementById('wiResult').classList.remove('show');
-  document.getElementById('wiAddColl').value = '';
-  document.getElementById('wiRepayDebt').value = '';
-  document.getElementById('wiBorrowMore').value = '';
-}
-
-// ═══════════════════════════════════
-// BROWSER PUSH ALERTS
-// ═══════════════════════════════════
-var alertsEnabled = false;
-var alertThreshold = 1.5;
-var alertedPositions = {};
-
-function toggleAlerts() {
-  if (!alertsEnabled) {
-    if (!('Notification' in window)) { showToast('Browser notifications not supported'); return; }
-    Notification.requestPermission().then(function(perm) {
-      if (perm === 'granted') {
-        alertsEnabled = true;
-        document.getElementById('alertToggleBtn').textContent = '🔔 ALERTS ON';
-        document.getElementById('alertToggleBtn').classList.add('active');
-        showToast('Alerts enabled — notifying below HF ' + alertThreshold);
-      } else {
-        showToast('Notification permission denied');
-      }
+// ═══════════ ALERTS ═══════════
+function toggleAlerts(){
+  if(!alertsOn){
+    if(!('Notification' in window)){toast('Browser notifications not supported');return;}
+    Notification.requestPermission().then(function(p){
+      if(p==='granted'){alertsOn=true;document.getElementById('btnAlert').classList.add('on');
+        document.getElementById('btnAlert').textContent='🔔 ALERTS ON';toast('Alerts enabled');}
+      else toast('Notification permission denied');
     });
   } else {
-    alertsEnabled = false;
-    document.getElementById('alertToggleBtn').textContent = '🔔 ALERTS OFF';
-    document.getElementById('alertToggleBtn').classList.remove('active');
-    alertedPositions = {};
-    showToast('Alerts disabled');
+    alertsOn=false;alerted={};
+    document.getElementById('btnAlert').classList.remove('on');
+    document.getElementById('btnAlert').textContent='🔔 ALERTS OFF';
+    toast('Alerts disabled');
   }
 }
 
-function checkAlerts() {
-  if (!alertsEnabled) return;
-  positions.forEach(function(pos) {
-    var calc = calcHealth(pos);
-    var hf = calc.hf;
-    var status = healthStatus(hf);
-    var key = pos.id + '-' + status;
-    if ((status === 'danger' || status === 'warn') && !alertedPositions[key]) {
-      alertedPositions[key] = true;
-      var title = status === 'danger' ? '🚨 DANGER: ' + pos.protocol + ' Position!' : '⚠️ WARNING: ' + pos.protocol + ' Position';
-      var body = pos.collAsset + '→' + pos.debtAsset + ' | HF: ' + hf.toFixed(3) + ' | Liq at $' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2});
-      new Notification(title, {body: body, icon: '/favicon.ico'});
+function checkAlerts(){
+  if(!alertsOn) return;
+  positions.forEach(function(pos){
+    var c=calcHF(pos),s=status(c.hf),key=pos.id+'-'+s;
+    if((s==='danger'||s==='warn')&&!alerted[key]){
+      alerted[key]=true;
+      new Notification(s==='danger'?'🚨 DANGER: '+pos.proto+' Position!':'⚠️ WARNING: '+pos.proto,
+        {body:pos.coll+'→'+pos.debt+' | HF: '+c.hf.toFixed(3)+' | Liq at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})});
     }
   });
 }
 
-// ═══════════════════════════════════
-// SHARE CARD
-// ═══════════════════════════════════
-function showShareModal() {
-  if (positions.length === 0) { showToast('Add a position first'); return; }
-  var sel = document.getElementById('sharePositionSelect');
-  sel.innerHTML = '<option value="">— select position —</option>';
-  positions.forEach(function(pos) {
-    var opt = document.createElement('option');
-    opt.value = pos.id;
-    opt.textContent = pos.protocol + ' — ' + pos.collAsset + '→' + pos.debtAsset;
-    sel.appendChild(opt);
+// ═══════════ SHARE ═══════════
+function openShare(){
+  if(!positions.length){toast('Add a position first');return;}
+  var sel=document.getElementById('shareSel');
+  sel.innerHTML='<option value="">— select position —</option>';
+  positions.forEach(function(p){
+    var o=document.createElement('option');o.value=p.id;
+    o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);
   });
-  if (positions.length === 1) {
-    sel.value = positions[0].id;
-    renderShareCard();
-  }
-  document.getElementById('shareModal').classList.add('show');
+  if(positions.length===1){sel.value=positions[0].id;renderShareCard();}
+  document.getElementById('shareOverlay').classList.add('show');
+}
+function closeShare(){document.getElementById('shareOverlay').classList.remove('show');}
+
+function renderShareCard(){
+  var id=parseInt(document.getElementById('shareSel').value);
+  var pos=positions.find(function(p){return p.id===id;});
+  var wrap=document.getElementById('shareCardWrap');
+  if(!pos){wrap.innerHTML='';return;}
+  var c=calcHF(pos),s=status(c.hf),col=statusColor(s),lbl=statusLabel(c.hf);
+  var hfStr=c.hf===999?'∞':c.hf.toFixed(2);
+  wrap.innerHTML='<div class="share-card">'
+    +'<div class="sc-top"><div class="sc-logo">Pyth<em>Risk</em></div><span class="badge '+s+'">'+lbl+'</span></div>'
+    +'<div class="sc-main">'
+      +'<div class="sc-pair">'+pos.coll+' / '+pos.debt+'</div>'
+      +'<div class="sc-proto">'+pos.proto.toUpperCase()+' POSITION</div>'
+      +'<div class="sc-hf" style="color:'+col+'">'+hfStr+'</div>'
+      +'<div class="sc-hfl">HEALTH FACTOR</div>'
+    +'</div>'
+    +'<div class="sc-grid">'
+      +'<div><div class="sc-s-l">Collateral</div><div class="sc-s-v">$'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+      +'<div><div class="sc-s-l">Debt</div><div class="sc-s-v">$'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+      +'<div><div class="sc-s-l">Liq. Price</div><div class="sc-s-v" style="color:'+col+'">$'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
+    +'</div>'
+    +'<div class="sc-foot">pythrisk.vercel.app · Powered by Pyth Network · '+new Date().toLocaleDateString()+'</div>'
+  +'</div>'
+  +'<button class="copy-btn" onclick="copyShare('+id+')">📋 COPY SHARE TEXT FOR TWITTER</button>';
 }
 
-function hideShareModal() {
-  document.getElementById('shareModal').classList.remove('show');
+function copyShare(id){
+  var pos=positions.find(function(p){return p.id===id;});
+  if(!pos) return;
+  var c=calcHF(pos),s=status(c.hf);
+  var e={safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[s];
+  var txt=e+' My '+pos.proto+' '+pos.coll+'→'+pos.debt+' position\n'
+    +'📊 Health Factor: '+(c.hf===999?'∞':c.hf.toFixed(3))+' ('+statusLabel(c.hf)+')\n'
+    +'💰 Collateral: $'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'\n'
+    +'💸 Debt: $'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'\n'
+    +'⚡ Liquidation at: $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'\n\n'
+    +'Monitor your DeFi risk in real time 👇\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
+  navigator.clipboard.writeText(txt).then(function(){toast('Copied! Paste to Twitter 🐦');}).catch(function(){toast('Copy manually from the card');});
 }
 
-function renderShareCard() {
-  var posId = parseInt(document.getElementById('sharePositionSelect').value);
-  var pos = positions.find(function(p){ return p.id === posId; });
-  var container = document.getElementById('shareCardContainer');
-  if (!pos) { container.innerHTML = ''; return; }
+// ═══════════ UTILS ═══════════
+function scrollToForm(){document.getElementById('addForm').scrollIntoView({behavior:'smooth'});}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 
-  var calc = calcHealth(pos);
-  var status = healthStatus(calc.hf);
-  var color = healthColor(status);
-  var label = healthLabel(calc.hf);
-  var hfStr = calc.hf === 999 ? '∞' : calc.hf.toFixed(2);
-
-  container.innerHTML = '<div class="share-card" id="theShareCard">'
-    + '<div class="sc-header">'
-      + '<div class="sc-logo">Pyth<span>Risk</span></div>'
-      + '<span class="sc-badge badge-' + status + '">' + label + '</span>'
-    + '</div>'
-    + '<div class="sc-sym">' + pos.collAsset + ' / ' + pos.debtAsset + '</div>'
-    + '<div class="sc-proto">' + pos.protocol.toUpperCase() + ' POSITION</div>'
-    + '<div class="sc-hf" style="color:' + color + '">' + hfStr + '</div>'
-    + '<div class="sc-hflabel">HEALTH FACTOR</div>'
-    + '<div class="sc-stats">'
-      + '<div><div class="sc-stat-l">Collateral</div><div class="sc-stat-v">$' + calc.collUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div></div>'
-      + '<div><div class="sc-stat-l">Debt</div><div class="sc-stat-v">$' + calc.debtUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div></div>'
-      + '<div><div class="sc-stat-l">Liq. Price</div><div class="sc-stat-v" style="color:' + color + '">$' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + '</div></div>'
-    + '</div>'
-    + '<div class="sc-footer">pythrisk.vercel.app · Powered by Pyth Network · ' + new Date().toLocaleDateString() + '</div>'
-  + '</div>'
-  + '<button class="copy-card-btn" onclick="copyShareText()">📋 COPY SHARE TEXT</button>';
-}
-
-function copyShareText() {
-  var posId = parseInt(document.getElementById('sharePositionSelect').value);
-  var pos = positions.find(function(p){ return p.id === posId; });
-  if (!pos) return;
-  var calc = calcHealth(pos);
-  var status = healthStatus(calc.hf);
-  var label = healthLabel(calc.hf);
-  var emoji = {safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[status];
-  var text = emoji + ' My ' + pos.protocol + ' ' + pos.collAsset + '→' + pos.debtAsset + ' position:\n'
-    + '📊 Health Factor: ' + (calc.hf === 999 ? '∞' : calc.hf.toFixed(3)) + ' (' + label + ')\n'
-    + '💰 Collateral: $' + calc.collUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '\n'
-    + '💸 Debt: $' + calc.debtUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '\n'
-    + '⚡ Liquidation at: $' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + '\n\n'
-    + 'Monitor your DeFi risk in real time 👇\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
-
-  navigator.clipboard.writeText(text.replace(/\n/g,'\n')).then(function() {
-    showToast('Share text copied! Paste to Twitter 🐦');
-  }).catch(function() {
-    showToast('Copy failed — try manually selecting the text');
-  });
-}
-
-// ═══════════════════════════════════
-// INIT
-// ═══════════════════════════════════
-var sliderPrices = {};
-var sliderVisible = false;
-var whatifVisible = false;
-loadDemoPositions();
+// ═══════════ INIT ═══════════
 fetchPrices();
-setInterval(fetchPrices, 5000);
+fetch24h();
+setInterval(fetchPrices,5000);
+setInterval(fetch24h,300000);
 </script>
 
 </body>
