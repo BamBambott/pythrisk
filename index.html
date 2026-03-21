@@ -399,7 +399,7 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
     </div>
     <div class="f-group">
       <label class="f-label">Amount</label>
-      <input class="f-input" id="fCollAmt" type="number" placeholder="e.g. 2.5" step="any" min="0">
+      <input class="f-input" id="fCollAmt" type="number" placeholder="e.g. 2.5" step="any" min="0" inputmode="decimal" onkeydown="if(event.key==='Enter')addPos()">
     </div>
   </div>
   <div class="f-row">
@@ -414,7 +414,7 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
     </div>
     <div class="f-group">
       <label class="f-label">Debt Amount</label>
-      <input class="f-input" id="fDebtAmt" type="number" placeholder="e.g. 3000" step="any" min="0">
+      <input class="f-input" id="fDebtAmt" type="number" placeholder="e.g. 3000" step="any" min="0" inputmode="decimal" onkeydown="if(event.key==='Enter')addPos()">
     </div>
   </div>
   <div class="f-group">
@@ -427,7 +427,7 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
       <option value="0.65">65% — Aggressive</option>
     </select>
   </div>
-  <button class="calc-btn" onclick="addPos()">CALCULATE RISK →</button>
+  <button class="calc-btn" onclick="addPos()" type="button">CALCULATE RISK →</button>
 </div>
 
 <!-- LIVE PRICES -->
@@ -588,7 +588,7 @@ function renderAll(){
       :s==='danger'?'🚨 CRITICAL — only '+c.drop.toFixed(1)+'% price drop to liquidation! Act now.'
       :'☠ LIQUIDATED — health factor ≤ 1.0. This position would be seized by the protocol.';
 
-    html+='<div class="pos-card '+s+'">'
+    html+='<div class="pos-card '+s+'" id="pos-'+pos.id+'">'
       +'<div class="pc-row1">'
         +'<div class="pc-left">'
           +'<div class="pc-icon" style="background:'+proto_c+'22;color:'+proto_c+'">'+pos.proto.slice(0,2).toUpperCase()+'</div>'
@@ -644,10 +644,25 @@ function updateTicker(){
 
 // ═══════════ ADD/REMOVE ═══════════
 function addPos(){
-  var cAmt=parseFloat(document.getElementById('fCollAmt').value);
-  var dAmt=parseFloat(document.getElementById('fDebtAmt').value);
-  if(!cAmt||!dAmt||cAmt<=0||dAmt<=0){toast('Enter valid collateral and debt amounts');return;}
-  positions.push({
+  var collAmtEl=document.getElementById('fCollAmt');
+  var debtAmtEl=document.getElementById('fDebtAmt');
+  var cAmt=parseFloat(collAmtEl.value.trim());
+  var dAmt=parseFloat(debtAmtEl.value.trim());
+
+  if(isNaN(cAmt)||cAmt<=0){
+    collAmtEl.style.borderColor='#ff3b5c';
+    toast('Enter a valid collateral amount (e.g. 2.5)');
+    setTimeout(function(){collAmtEl.style.borderColor='';},2000);
+    return;
+  }
+  if(isNaN(dAmt)||dAmt<=0){
+    debtAmtEl.style.borderColor='#ff3b5c';
+    toast('Enter a valid debt amount (e.g. 3000)');
+    setTimeout(function(){debtAmtEl.style.borderColor='';},2000);
+    return;
+  }
+
+  var newPos={
     id:++posId,
     proto:document.getElementById('fProto').value,
     coll:document.getElementById('fCollAsset').value,
@@ -655,11 +670,17 @@ function addPos(){
     debt:document.getElementById('fDebtAsset').value,
     debtAmt:dAmt,
     thresh:parseFloat(document.getElementById('fThresh').value),
-  });
-  document.getElementById('fCollAmt').value='';
-  document.getElementById('fDebtAmt').value='';
+  };
+  positions.push(newPos);
+  collAmtEl.value='';
+  debtAmtEl.value='';
   renderAll();
-  toast('Position added — monitoring live ✓');
+  // Scroll to new position
+  setTimeout(function(){
+    var el=document.getElementById('pos-'+newPos.id);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+  toast('✓ Position added — monitoring live with Pyth prices');
 }
 
 function delPos(id){
