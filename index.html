@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PythRisk — DeFi Liquidation Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060608;
+  --card:#0d0d12;
+  --card2:#111118;
+  --border:#1a1a24;
+  --border2:#252530;
+  --safe:#00e5a0;
+  --warn:#f5a623;
+  --danger:#ff3b5c;
+  --dead:#6b7280;
+  --blue:#3b82f6;
+  --text:#eeeef5;
+  --muted:#5a5a72;
+  --mono:'DM Mono',monospace;
+  --display:'Syne',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(255,59,92,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(0,229,160,0.04) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* HEADER */
+header{
+position:sticky;top:0;z-index:100;
+display:flex;align-items:center;justify-content:space-between;
+padding:16px 24px;
+background:rgba(6,6,8,0.9);
+border-bottom:1px solid var(–border);
+backdrop-filter:blur(20px);
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{
+width:36px;height:36px;
+background:linear-gradient(135deg,var(–danger),#ff6b35);
+clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+display:flex;align-items:center;justify-content:center;
+font-family:var(–display);font-weight:800;font-size:13px;color:white;
+flex-shrink:0;
+}
+.logo-name{font-family:var(–display);font-weight:800;font-size:18px;letter-spacing:-0.5px}
+.logo-name span{color:var(–danger)}
+.logo-sub{font-size:9px;color:var(–muted);letter-spacing:2px;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:12px}
+.pyth-badge{
+display:flex;align-items:center;gap:6px;
+padding:5px 12px;border-radius:4px;
+border:1px solid rgba(0,229,160,0.2);
+background:rgba(0,229,160,0.05);
+font-size:9px;letter-spacing:2px;color:var(–safe);
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(–safe);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,160,0.4)}50%{opacity:0.6;box-shadow:0 0 0 4px transparent}}
+
+/* HERO BANNER */
+.hero{
+padding:48px 24px 40px;
+border-bottom:1px solid var(–border);
+position:relative;z-index:1;
+}
+.hero-eyebrow{
+font-size:9px;letter-spacing:4px;color:var(–danger);
+text-transform:uppercase;margin-bottom:12px;
+display:flex;align-items:center;gap:8px;
+}
+.hero-eyebrow::before{content:’’;display:block;width:24px;height:1px;background:var(–danger)}
+.hero h1{
+font-family:var(–display);
+font-size:clamp(28px,6vw,52px);
+font-weight:800;
+line-height:1.05;
+letter-spacing:-1px;
+margin-bottom:16px;
+}
+.hero h1 em{font-style:normal;color:var(–danger)}
+.hero p{
+font-size:12px;line-height:1.9;
+color:var(–muted);max-width:500px;
+}
+.hero-stats{
+display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;
+}
+.hstat{display:flex;flex-direction:column;gap:3px}
+.hstat-n{font-family:var(–display);font-size:24px;font-weight:700}
+.hstat-l{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase}
+
+/* MAIN LAYOUT */
+.main{
+display:grid;
+grid-template-columns:1fr 340px;
+gap:0;
+position:relative;z-index:1;
+}
+@media(max-width:768px){.main{grid-template-columns:1fr}}
+
+/* LEFT — POSITIONS */
+.positions-pane{border-right:1px solid var(–border)}
+.pane-header{
+display:flex;align-items:center;justify-content:space-between;
+padding:20px 24px;
+border-bottom:1px solid var(–border);
+}
+.pane-title{font-family:var(–display);font-size:13px;font-weight:700;letter-spacing:1px}
+.add-btn{
+display:flex;align-items:center;gap:6px;
+padding:7px 14px;border-radius:4px;
+background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);
+color:var(–danger);font-size:10px;letter-spacing:1px;
+cursor:pointer;font-family:var(–mono);transition:all 0.2s;
+}
+.add-btn:hover{background:rgba(255,59,92,0.2)}
+
+/* POSITION CARD */
+.position-card{
+border-bottom:1px solid var(–border);
+padding:20px 24px;
+cursor:pointer;
+transition:background 0.15s;
+position:relative;
+overflow:hidden;
+}
+.position-card::before{
+content:’’;
+position:absolute;left:0;top:0;bottom:0;width:3px;
+background:var(–safe);transition:background 0.3s;
+}
+.position-card.warn::before{background:var(–warn)}
+.position-card.danger::before{background:var(–danger)}
+.position-card.dead::before{background:var(–dead)}
+.position-card:hover{background:rgba(255,255,255,0.02)}
+
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.pc-protocol{
+display:flex;align-items:center;gap:8px;
+}
+.proto-icon{
+width:28px;height:28px;border-radius:6px;
+display:flex;align-items:center;justify-content:center;
+font-size:11px;font-weight:700;font-family:var(–display);
+flex-shrink:0;
+}
+.pc-name{font-family:var(–display);font-size:14px;font-weight:700}
+.pc-type{font-size:9px;color:var(–muted);letter-spacing:1px;margin-top:2px}
+.health-badge{
+padding:4px 10px;border-radius:3px;
+font-size:9px;font-weight:500;letter-spacing:2px;
+text-transform:uppercase;
+}
+.badge-safe{background:rgba(0,229,160,0.1);color:var(–safe);border:1px solid rgba(0,229,160,0.2)}
+.badge-warn{background:rgba(245,166,35,0.1);color:var(–warn);border:1px solid rgba(245,166,35,0.2)}
+.badge-danger{background:rgba(255,59,92,0.15);color:var(–danger);border:1px solid rgba(255,59,92,0.3)}
+.badge-dead{background:rgba(107,114,128,0.1);color:var(–dead);border:1px solid rgba(107,114,128,0.2)}
+
+/* HEALTH BAR */
+.health-bar-wrap{margin-bottom:12px}
+.health-bar-labels{display:flex;justify-content:space-between;font-size:9px;color:var(–muted);margin-bottom:5px}
+.health-bar-track{
+height:6px;border-radius:3px;
+background:var(–border2);
+overflow:hidden;
+}
+.health-bar-fill{
+height:100%;border-radius:3px;
+transition:width 0.8s ease, background 0.3s;
+}
+
+/* METRICS ROW */
+.pc-metrics{
+display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+margin-bottom:12px;
+}
+.pc-metric{background:var(–card2);border:1px solid var(–border);padding:8px 10px;border-radius:4px}
+.pc-metric-l{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
+.pc-metric-v{font-size:12px;font-weight:500}
+
+/* LIQUIDATION WARNING */
+.liq-warning{
+display:flex;align-items:center;gap:8px;
+padding:8px 12px;border-radius:4px;
+font-size:10px;line-height:1.5;
+}
+.liq-safe{background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.15);color:rgba(0,229,160,0.8)}
+.liq-warn{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(–warn)}
+.liq-danger{background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.25);color:var(–danger);animation:flashborder 2s infinite}
+@keyframes flashborder{0%,100%{border-color:rgba(255,59,92,0.25)}50%{border-color:rgba(255,59,92,0.6)}}
+.liq-dead{background:rgba(107,114,128,0.08);border:1px solid rgba(107,114,128,0.2);color:var(–dead)}
+
+/* EMPTY STATE */
+.empty-state{
+padding:60px 24px;text-align:center;
+color:var(–muted);
+}
+.empty-icon{font-size:40px;margin-bottom:16px;opacity:0.4}
+.empty-title{font-family:var(–display);font-size:16px;font-weight:700;margin-bottom:8px;color:var(–text)}
+.empty-desc{font-size:11px;line-height:1.8;max-width:280px;margin:0 auto}
+
+/* RIGHT — PANEL */
+.right-pane{position:sticky;top:65px;height:calc(100vh - 65px);overflow-y:auto}
+@media(max-width:768px){.right-pane{position:static;height:auto;border-top:1px solid var(–border)}}
+
+/* ADD POSITION FORM */
+.form-pane{padding:20px 20px}
+.form-title{
+font-family:var(–display);font-size:13px;font-weight:700;
+letter-spacing:1px;margin-bottom:20px;
+display:flex;align-items:center;gap:8px;
+}
+.form-title::after{content:’’;flex:1;height:1px;background:var(–border)}
+
+.form-group{margin-bottom:14px}
+.form-label{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:6px;display:block}
+.form-input{
+width:100%;padding:10px 12px;
+background:var(–card2);border:1px solid var(–border2);
+border-radius:4px;color:var(–text);font-family:var(–mono);font-size:12px;
+outline:none;transition:border-color 0.2s;
+}
+.form-input:focus{border-color:var(–danger)}
+.form-select{
+width:100%;padding:10px 12px;
+background:var(–card2);border:1px solid var(–border2);
+border-radius:4px;color:var(–text);font-family:var(–mono);font-size:12px;
+outline:none;cursor:pointer;
+appearance:none;
+background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘10’ height=‘6’%3E%3Cpath d=‘M0 0l5 6 5-6z’ fill=’%235a5a72’/%3E%3C/svg%3E”);
+background-repeat:no-repeat;background-position:right 12px center;
+padding-right:32px;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.submit-btn{
+width:100%;padding:12px;border-radius:4px;
+background:linear-gradient(135deg,var(–danger),#ff6b35);
+border:none;color:white;font-family:var(–display);
+font-size:12px;font-weight:700;letter-spacing:2px;
+cursor:pointer;transition:opacity 0.2s;margin-top:6px;
+}
+.submit-btn:hover{opacity:0.85}
+
+/* PRICE TICKER */
+.ticker-pane{
+border-top:1px solid var(–border);
+padding:16px 20px;
+}
+.ticker-title{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
+.ticker-item{
+display:flex;justify-content:space-between;align-items:center;
+padding:7px 0;border-bottom:1px solid var(–border);
+font-size:11px;
+}
+.ticker-item:last-child{border-bottom:none}
+.ticker-sym{color:var(–muted);font-size:10px}
+.ticker-price{font-weight:500}
+.ticker-chg{font-size:10px}
+.up{color:var(–safe)}.dn{color:var(–danger)}
+
+/* STRESS TEST */
+.stress-pane{
+border-top:1px solid var(–border);
+padding:16px 20px;
+}
+.stress-title{font-size:9px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
+.stress-btn{
+width:100%;padding:9px;border-radius:4px;
+background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);
+color:var(–blue);font-size:10px;letter-spacing:1px;
+cursor:pointer;font-family:var(–mono);transition:all 0.2s;margin-bottom:8px;
+}
+.stress-btn:hover{background:rgba(59,130,246,0.15)}
+.stress-result{
+font-size:10px;color:var(–muted);line-height:1.8;
+padding:10px;background:var(–card2);border:1px solid var(–border);
+border-radius:4px;display:none;
+}
+.stress-result.show{display:block}
+
+/* MODAL */
+.modal-overlay{
+position:fixed;inset:0;background:rgba(0,0,0,0.7);
+z-index:200;display:none;align-items:center;justify-content:center;
+padding:20px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+background:var(–card);border:1px solid var(–border2);
+border-radius:8px;padding:24px;width:100%;max-width:400px;
+}
+.modal-title{font-family:var(–display);font-size:16px;font-weight:700;margin-bottom:20px}
+.modal-close{
+float:right;background:none;border:none;color:var(–muted);
+font-size:18px;cursor:pointer;line-height:1;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(–bg)}
+::-webkit-scrollbar-thumb{background:var(–border2);border-radius:2px}
+
+/* TOAST */
+.toast{
+position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+background:var(–card2);border:1px solid var(–border2);
+padding:10px 20px;border-radius:4px;font-size:11px;
+opacity:0;transition:all 0.3s;pointer-events:none;z-index:300;
+white-space:nowrap;letter-spacing:1px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ANIMATIONS */
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.position-card{animation:slideIn 0.3s ease forwards}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">PR</div>
+    <div>
+      <div class="logo-name">Pyth<span>Risk</span></div>
+      <div class="logo-sub">DeFi Liquidation Monitor</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="pyth-badge">
+      <div class="live-dot" id="liveDot"></div>
+      <span id="liveText">PYTH LIVE</span>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Real-Time Risk Intelligence</div>
+  <h1>Monitor Your DeFi<br>Positions Before<br>They Get <em>Liquidated</em></h1>
+  <p>Enter your collateral and debt positions. PythRisk calculates your health factor in real time using live Pyth Network oracle prices — and alerts you before you hit the liquidation threshold.</p>
+  <div class="hero-stats">
+    <div class="hstat">
+      <div class="hstat-n" id="statPositions" style="color:var(--text)">0</div>
+      <div class="hstat-l">Positions</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="statAtRisk" style="color:var(--warn)">0</div>
+      <div class="hstat-l">At Risk</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="statDanger" style="color:var(--danger)">0</div>
+      <div class="hstat-l">Danger</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-n" id="statTVL" style="color:var(--safe)">$0</div>
+      <div class="hstat-l">Total Collateral</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- LEFT: POSITIONS LIST -->
+  <div class="positions-pane">
+    <div class="pane-header">
+      <div class="pane-title">YOUR POSITIONS</div>
+      <button class="add-btn" onclick="showAddModal()">+ ADD POSITION</button>
+    </div>
+    <div id="positionsList">
+      <div class="empty-state">
+        <div class="empty-icon">⬡</div>
+        <div class="empty-title">No positions yet</div>
+        <div class="empty-desc">Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: FORM + TICKER -->
+
+  <div class="right-pane">
+    <!-- QUICK ADD FORM -->
+    <div class="form-pane">
+      <div class="form-title">QUICK ADD</div>
+
+```
+  <div class="form-group">
+    <label class="form-label">Protocol</label>
+    <select class="form-select" id="fProtocol">
+      <option value="Aave">Aave v3</option>
+      <option value="Compound">Compound v3</option>
+      <option value="MakerDAO">MakerDAO</option>
+      <option value="Venus">Venus</option>
+      <option value="Custom">Custom</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Collateral Asset</label>
+      <select class="form-select" id="fCollAsset">
+        <option value="BTC">BTC</option>
+        <option value="ETH" selected>ETH</option>
+        <option value="SOL">SOL</option>
+        <option value="BNB">BNB</option>
+        <option value="AVAX">AVAX</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount</label>
+      <input class="form-input" id="fCollAmount" type="number" placeholder="e.g. 2.5" min="0" step="any">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Debt Asset</label>
+      <select class="form-select" id="fDebtAsset">
+        <option value="USDC" selected>USDC</option>
+        <option value="USDT">USDT</option>
+        <option value="ETH">ETH</option>
+        <option value="BTC">BTC</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Debt Amount</label>
+      <input class="form-input" id="fDebtAmount" type="number" placeholder="e.g. 3000" min="0" step="any">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Liquidation Threshold</label>
+    <select class="form-select" id="fLiqThreshold">
+      <option value="0.85">85% (Aave ETH)</option>
+      <option value="0.80">80% (Aave BTC)</option>
+      <option value="0.75">75% (Conservative)</option>
+      <option value="0.70">70% (Compound)</option>
+      <option value="0.65">65% (Aggressive)</option>
+    </select>
+  </div>
+
+  <button class="submit-btn" onclick="addPosition()">CALCULATE RISK →</button>
+</div>
+
+<!-- LIVE PRICE TICKER -->
+<div class="ticker-pane">
+  <div class="ticker-title">Live Pyth Prices</div>
+  <div id="tickerList">
+    <div style="color:var(--muted);font-size:10px">Loading prices...</div>
+  </div>
+</div>
+
+<!-- STRESS TEST -->
+<div class="stress-pane">
+  <div class="stress-title">Stress Test</div>
+  <button class="stress-btn" onclick="stressTest(-10)">📉 Simulate −10% crash</button>
+  <button class="stress-btn" onclick="stressTest(-25)">📉 Simulate −25% crash</button>
+  <button class="stress-btn" onclick="stressTest(-50)">☠️ Simulate −50% crash</button>
+  <button class="stress-btn" onclick="stressTest(0)">🔄 Reset to live prices</button>
+  <div class="stress-result" id="stressResult"></div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ADD POSITION MODAL (mobile) -->
+
+<div class="modal-overlay" id="addModal" onclick="if(event.target===this)hideAddModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="hideAddModal()">✕</button>
+    <div class="modal-title">Add Position</div>
+    <p style="font-size:11px;color:var(--muted)">Use the form on the right panel →</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+var prices = {}; // sym -> USD price
+var stressMultiplier = 1.0;
+var positions = [];
+var posIdCounter = 0;
+
+// Feed IDs for assets we need
+var PRICE_FEEDS = {
+  'BTC':  '0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
+  'ETH':  '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
+  'SOL':  '0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
+  'BNB':  '0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f',
+  'AVAX': '0x93da3352f9f1d105fdfe4971cfa80e9dd777bfc5d0f683ebb6e1294b92137bb7',
+  'USDC': '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
+  'USDT': '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
+  'LINK': '0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
+};
+
+var prevPrices = {};
+
+// Protocol colors
+var PROTO_COLORS = {
+  'Aave': '#B6509E', 'Compound': '#00D395',
+  'MakerDAO': '#F5AC37', 'Venus': '#F0B90B', 'Custom': '#3b82f6'
+};
+
+// ═══════════════════════════════════
+// FETCH PRICES from Pyth Hermes
+// ═══════════════════════════════════
+async function fetchPrices() {
+  var ids = Object.values(PRICE_FEEDS);
+  var params = ids.map(function(id){ return 'ids[]=' + id; }).join('&');
+  var url = 'https://hermes.pyth.network/v2/updates/price/latest?' + params + '&parsed=true';
+
+  try {
+    var r = await fetch(url, {signal: AbortSignal.timeout(6000)});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    var d = await r.json();
+
+    prevPrices = Object.assign({}, prices);
+    var syms = Object.keys(PRICE_FEEDS);
+    var vals = Object.values(PRICE_FEEDS);
+
+    d.parsed.forEach(function(item) {
+      var id = '0x' + item.id;
+      var sym = syms[vals.indexOf(id)];
+      if (sym) {
+        prices[sym] = item.price.price * Math.pow(10, item.price.expo);
+      }
+    });
+
+    document.getElementById('liveText').textContent = 'PYTH LIVE';
+    document.getElementById('liveDot').style.background = 'var(--safe)';
+    updateTicker();
+    updateAllPositions();
+  } catch(e) {
+    document.getElementById('liveText').textContent = 'RECONNECTING';
+    document.getElementById('liveDot').style.background = 'var(--warn)';
+  }
+}
+
+// ═══════════════════════════════════
+// TICKER
+// ═══════════════════════════════════
+function updateTicker() {
+  var syms = ['BTC','ETH','SOL','BNB','AVAX'];
+  var html = '';
+  syms.forEach(function(sym) {
+    var p = prices[sym];
+    if (!p) { html += '<div class="ticker-item"><span class="ticker-sym">' + sym + '/USD</span><span class="ticker-price" style="color:var(--muted)">—</span></div>'; return; }
+    var prev = prevPrices[sym];
+    var chg = prev ? ((p - prev) / prev * 100) : 0;
+    var chgStr = chg === 0 ? '' : (chg > 0 ? '<span class="up">▲' : '<span class="dn">▼') + Math.abs(chg).toFixed(3) + '%</span>';
+    var pStr = p >= 1000 ? '$' + p.toLocaleString('en-US',{maximumFractionDigits:2}) : '$' + p.toFixed(4);
+    html += '<div class="ticker-item"><span class="ticker-sym">' + sym + '/USD</span><span class="ticker-price">' + pStr + '</span>' + chgStr + '</div>';
+  });
+  document.getElementById('tickerList').innerHTML = html;
+}
+
+// ═══════════════════════════════════
+// HEALTH FACTOR CALCULATION
+// Aave formula: HF = (collateral_USD * liq_threshold) / debt_USD
+// ═══════════════════════════════════
+function calcHealth(pos) {
+  var collPrice = (prices[pos.collAsset] || 0) * stressMultiplier;
+  var debtPrice = pos.debtAsset === 'USDC' || pos.debtAsset === 'USDT' ? 1.0 : (prices[pos.debtAsset] || 0) * stressMultiplier;
+
+  var collUSD = pos.collAmount * collPrice;
+  var debtUSD = pos.debtAmount * debtPrice;
+
+  if (debtUSD === 0) return { hf: 999, collUSD, debtUSD, liqPrice: 0, dropPct: 100 };
+
+  var hf = (collUSD * pos.liqThreshold) / debtUSD;
+
+  // Price at which liquidation occurs
+  var liqPrice = (debtUSD / (pos.collAmount * pos.liqThreshold));
+  var dropPct = collPrice > 0 ? ((collPrice - liqPrice) / collPrice * 100) : 0;
+
+  return { hf, collUSD, debtUSD, liqPrice, dropPct };
+}
+
+function healthStatus(hf) {
+  if (hf >= 2.0) return 'safe';
+  if (hf >= 1.3) return 'warn';
+  if (hf > 1.0) return 'danger';
+  return 'dead';
+}
+
+function healthLabel(hf) {
+  if (hf >= 2.0) return 'SAFE';
+  if (hf >= 1.3) return 'WARNING';
+  if (hf > 1.0) return 'DANGER';
+  return 'LIQUIDATED';
+}
+
+function healthColor(status) {
+  return {safe:'var(--safe)',warn:'var(--warn)',danger:'var(--danger)',dead:'var(--dead)'}[status];
+}
+
+// ═══════════════════════════════════
+// RENDER POSITIONS
+// ═══════════════════════════════════
+function renderPositions() {
+  var list = document.getElementById('positionsList');
+  if (positions.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">⬡</div><div class="empty-title">No positions yet</div><div class="empty-desc">Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</div></div>';
+    updateStats();
+    return;
+  }
+
+  var html = '';
+  positions.forEach(function(pos) {
+    var calc = calcHealth(pos);
+    var status = healthStatus(calc.hf);
+    var color = healthColor(status);
+    var pct = Math.min(100, Math.max(0, (calc.hf / 3) * 100));
+    var barColor = color;
+    var protoColor = PROTO_COLORS[pos.protocol] || '#6b7280';
+    var collPriceStr = prices[pos.collAsset] ? '$' + (prices[pos.collAsset]*stressMultiplier).toLocaleString('en-US',{maximumFractionDigits:2}) : '—';
+
+    var warningMsg = '';
+    if (status === 'safe') warningMsg = '<div class="liq-warning liq-safe">✓ Position is healthy. Liquidation at $' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + ' (' + calc.dropPct.toFixed(1) + '% drop needed)</div>';
+    else if (status === 'warn') warningMsg = '<div class="liq-warning liq-warn">⚠ Approaching risk zone. Price must drop ' + calc.dropPct.toFixed(1) + '% to liquidate. Reduce debt or add collateral.</div>';
+    else if (status === 'danger') warningMsg = '<div class="liq-warning liq-danger">🚨 DANGER — only ' + calc.dropPct.toFixed(1) + '% drop to liquidation! Act immediately.</div>';
+    else warningMsg = '<div class="liq-warning liq-dead">☠ LIQUIDATED — health factor below 1.0. This position would be seized.</div>';
+
+    html += '<div class="position-card ' + status + '" id="pos-' + pos.id + '">'
+      + '<div class="pc-top">'
+        + '<div class="pc-protocol">'
+          + '<div class="proto-icon" style="background:' + protoColor + '22;color:' + protoColor + '">' + pos.protocol.slice(0,2).toUpperCase() + '</div>'
+          + '<div><div class="pc-name">' + pos.protocol + '</div><div class="pc-type">' + pos.collAsset + ' → ' + pos.debtAsset + '</div></div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;gap:8px">'
+          + '<span class="health-badge badge-' + status + '">' + healthLabel(calc.hf) + '</span>'
+          + '<button onclick="removePosition(' + pos.id + ');event.stopPropagation()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;">×</button>'
+        + '</div>'
+      + '</div>'
+      + '<div class="health-bar-wrap">'
+        + '<div class="health-bar-labels"><span>Health Factor</span><span style="color:' + color + ';font-weight:500">' + (calc.hf === 999 ? '∞' : calc.hf.toFixed(3)) + '</span></div>'
+        + '<div class="health-bar-track"><div class="health-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>'
+      + '</div>'
+      + '<div class="pc-metrics">'
+        + '<div class="pc-metric"><div class="pc-metric-l">Collateral</div><div class="pc-metric-v">$' + calc.collUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div></div>'
+        + '<div class="pc-metric"><div class="pc-metric-l">Debt</div><div class="pc-metric-v">$' + calc.debtUSD.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div></div>'
+        + '<div class="pc-metric"><div class="pc-metric-l">LTV</div><div class="pc-metric-v">' + (calc.collUSD > 0 ? (calc.debtUSD/calc.collUSD*100).toFixed(1) : '0') + '%</div></div>'
+        + '<div class="pc-metric"><div class="pc-metric-l">' + pos.collAsset + ' Price</div><div class="pc-metric-v">' + collPriceStr + '</div></div>'
+        + '<div class="pc-metric"><div class="pc-metric-l">Liq. Price</div><div class="pc-metric-v" style="color:' + color + '">$' + calc.liqPrice.toLocaleString('en-US',{maximumFractionDigits:2}) + '</div></div>'
+        + '<div class="pc-metric"><div class="pc-metric-l">Drop to Liq.</div><div class="pc-metric-v" style="color:' + color + '">' + calc.dropPct.toFixed(1) + '%</div></div>'
+      + '</div>'
+      + warningMsg
+    + '</div>';
+  });
+
+  list.innerHTML = html;
+  updateStats();
+}
+
+function updateStats() {
+  var atRisk = 0, danger = 0, tvl = 0;
+  positions.forEach(function(pos) {
+    var calc = calcHealth(pos);
+    var s = healthStatus(calc.hf);
+    if (s === 'warn') atRisk++;
+    if (s === 'danger' || s === 'dead') danger++;
+    tvl += calc.collUSD;
+  });
+  document.getElementById('statPositions').textContent = positions.length;
+  document.getElementById('statAtRisk').textContent = atRisk;
+  document.getElementById('statDanger').textContent = danger;
+  document.getElementById('statTVL').textContent = '$' + tvl.toLocaleString('en-US',{maximumFractionDigits:0});
+}
+
+function updateAllPositions() {
+  if (positions.length > 0) renderPositions();
+  else updateStats();
+}
+
+// ═══════════════════════════════════
+// ADD / REMOVE POSITIONS
+// ═══════════════════════════════════
+function addPosition() {
+  var protocol = document.getElementById('fProtocol').value;
+  var collAsset = document.getElementById('fCollAsset').value;
+  var collAmount = parseFloat(document.getElementById('fCollAmount').value);
+  var debtAsset = document.getElementById('fDebtAsset').value;
+  var debtAmount = parseFloat(document.getElementById('fDebtAmount').value);
+  var liqThreshold = parseFloat(document.getElementById('fLiqThreshold').value);
+
+  if (!collAmount || !debtAmount || isNaN(collAmount) || isNaN(debtAmount)) {
+    showToast('Please enter collateral and debt amounts');
+    return;
+  }
+  if (collAmount <= 0 || debtAmount <= 0) {
+    showToast('Amounts must be greater than 0');
+    return;
+  }
+
+  positions.push({
+    id: ++posIdCounter,
+    protocol, collAsset, collAmount,
+    debtAsset, debtAmount, liqThreshold,
+  });
+
+  document.getElementById('fCollAmount').value = '';
+  document.getElementById('fDebtAmount').value = '';
+  renderPositions();
+  showToast('Position added — monitoring live');
+}
+
+function removePosition(id) {
+  positions = positions.filter(function(p){ return p.id !== id; });
+  renderPositions();
+  showToast('Position removed');
+}
+
+// ═══════════════════════════════════
+// STRESS TEST
+// ═══════════════════════════════════
+function stressTest(pct) {
+  stressMultiplier = pct === 0 ? 1.0 : 1 + (pct / 100);
+  var result = document.getElementById('stressResult');
+
+  if (pct === 0) {
+    result.classList.remove('show');
+    renderPositions();
+    showToast('Reset to live prices');
+    return;
+  }
+
+  var dangerCount = 0;
+  positions.forEach(function(pos) {
+    var calc = calcHealth(pos);
+    if (healthStatus(calc.hf) === 'danger' || healthStatus(calc.hf) === 'dead') dangerCount++;
+  });
+
+  result.innerHTML = '📉 Simulating ' + pct + '% price drop across all assets\n'
+    + (positions.length === 0 ? 'No positions to test — add some first' : dangerCount + '/' + positions.length + ' positions would be at risk of liquidation');
+  result.classList.add('show');
+  renderPositions();
+  showToast('Stress test: ' + pct + '% crash applied');
+}
+
+// ═══════════════════════════════════
+// MODAL
+// ═══════════════════════════════════
+function showAddModal() {
+  // On mobile, scroll to form
+  document.querySelector('.form-pane').scrollIntoView({behavior:'smooth'});
+}
+function hideAddModal() {
+  document.getElementById('addModal').classList.remove('show');
+}
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+// ═══════════════════════════════════
+// DEMO POSITIONS (preloaded)
+// ═══════════════════════════════════
+function loadDemoPositions() {
+  positions = [
+    {id:++posIdCounter,protocol:'Aave',collAsset:'ETH',collAmount:5,debtAsset:'USDC',debtAmount:7000,liqThreshold:0.85},
+    {id:++posIdCounter,protocol:'Compound',collAsset:'BTC',collAmount:0.15,debtAsset:'USDC',debtAmount:8000,liqThreshold:0.80},
+    {id:++posIdCounter,protocol:'MakerDAO',collAsset:'ETH',collAmount:2,debtAsset:'USDC',debtAmount:4500,liqThreshold:0.75},
+  ];
+  renderPositions();
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+loadDemoPositions();
+fetchPrices();
+setInterval(fetchPrices, 5000);
+</script>
+
+</body>
+</html>
