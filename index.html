@@ -269,10 +269,11 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
 
 <header>
   <div class="logo">
-    <img src="https://raw.githubusercontent.com/BamBambott/pythrisk/main/logo.jpeg" 
-      alt="PythRisk Logo" 
-      style="width:40px;height:40px;border-radius:8px;object-fit:contain;flex-shrink:0"
-      onerror="this.outerHTML='<div class=\"logo-hex\">PR</div>'">
+    <div id="logoWrap" style="width:40px;height:40px;flex-shrink:0">
+      <img src="https://raw.githubusercontent.com/BamBambott/pythrisk/main/logo.jpeg"
+        alt="PythRisk" id="logoImg"
+        style="width:40px;height:40px;border-radius:8px;object-fit:contain;display:block">
+    </div>
     <div>
       <div class="logo-text">Pyth<span>Risk</span></div>
       <div class="logo-sub">DeFi Liquidation Monitor</div>
@@ -471,6 +472,16 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
 <div class="toast" id="toast"></div>
 
 <script>
+// Logo fallback
+document.addEventListener('DOMContentLoaded', function() {
+  var img = document.getElementById('logoImg');
+  if (img) {
+    img.onerror = function() {
+      document.getElementById('logoWrap').innerHTML = '<div class="logo-hex">PR</div>';
+    };
+  }
+});
+
 // ═══════════ STATE ═══════════
 var prices={}, prevPrices={}, d24h={};
 var positions=[], posId=0;
