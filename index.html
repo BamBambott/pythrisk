@@ -493,36 +493,42 @@ function getP(sym){return sliderPrices[sym]!==undefined?sliderPrices[sym]:(price
 async function fetchPrices(){
   var ids=Object.values(FEEDS);
   var params=ids.map(function(i){return'ids[]='+i}).join('&');
-  try{
-    var r=await fetch('https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true',{signal:AbortSignal.timeout(7000)});
-    if(!r.ok) throw new Error(r.status);
-    var d=await r.json();
-    prevPrices=Object.assign({},prices);
-    var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
-    d.parsed.forEach(function(item){
-      var id='0x'+item.id,sym=syms[vals.indexOf(id)];
-      if(sym) prices[sym]=item.price.price*Math.pow(10,item.price.expo);
-    });
-    document.getElementById('liveText').textContent='PYTH LIVE';
-    document.getElementById('liveDot').style.background='var(--safe)';
-    if(!demoLoaded){demoLoaded=true;loadDemo();}
-    updateTicker();renderAll();checkAlerts();
-    if(document.getElementById('panel-slider').classList.contains('show')) buildSliders();
-  }catch(e){
-    document.getElementById('liveText').textContent='RECONNECTING';
-    document.getElementById('liveDot').style.background='var(--warn)';
-    if(!demoLoaded){demoLoaded=true;loadDemo();}
+  var sources=[
+    '/api/prices',
+    'https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true',
+    'https://corsproxy.io/?'+encodeURIComponent('https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true')
+  ];
+  for(var i=0;i<sources.length;i++){
+    try{
+      var r=await fetch(sources[i],{signal:AbortSignal.timeout(6000)});
+      if(!r.ok) continue;
+      var d=await r.json();
+      var parsed=d.parsed||(d.success&&d.parsed);
+      if(!parsed||!parsed.length) continue;
+      prevPrices=Object.assign({},prices);
+      var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
+      parsed.forEach(function(item){
+        var id='0x'+item.id,sym=syms[vals.indexOf(id)];
+        if(sym) prices[sym]=item.price.price*Math.pow(10,item.price.expo);
+      });
+      document.getElementById('liveText').textContent='PYTH LIVE';
+      document.getElementById('liveDot').style.background='var(--safe)';
+      updateTicker();renderAll();checkAlerts();
+      if(document.getElementById('panel-slider').classList.contains('show')) buildSliders();
+      return;
+    }catch(e){continue;}
   }
+  document.getElementById('liveText').textContent='RECONNECTING';
+  document.getElementById('liveDot').style.background='var(--warn)';
 }
 
 async function fetch24h(){
   var ts=Math.floor(Date.now()/1000)-86400;
-  var ids=Object.values(FEEDS);
-  var params=ids.map(function(i){return'ids[]='+i}).join('&');
   try{
-    var r=await fetch('https://hermes.pyth.network/v2/updates/price/'+ts+'?'+params+'&parsed=true',{signal:AbortSignal.timeout(8000)});
-    if(!r.ok) return;
+    var r=await fetch('/api/prices?ts='+ts,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok) throw new Error();
     var d=await r.json();
+    if(!d.parsed) return;
     var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
     d.parsed.forEach(function(item){
       var id='0x'+item.id,sym=syms[vals.indexOf(id)];
@@ -889,6 +895,8 @@ function scrollToForm(){document.getElementById('addForm').scrollIntoView({behav
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 
 // ═══════════ INIT ═══════════
+// Load demo immediately so site never looks empty
+loadDemo();
 fetchPrices();
 fetch24h();
 setInterval(fetchPrices,5000);
