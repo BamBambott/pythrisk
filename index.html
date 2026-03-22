@@ -256,6 +256,45 @@ border-radius:5px;font-size:10px;letter-spacing:1px;opacity:0;
 transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ── SPARKLINE ── */
+.sparkline-wrap{margin-top:10px;margin-bottom:2px}
+.sparkline-label{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
+.sparkline-svg{width:100%;height:36px;display:block}
+
+/* ── PORTFOLIO CARD ── */
+.portfolio-card{
+background:linear-gradient(135deg,#0a0a10,#130813);
+border:1px solid rgba(255,59,92,0.2);border-radius:12px;
+padding:20px;font-family:var(–mono);
+}
+.pf-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pf-logo{display:flex;align-items:center;gap:8px}
+.pf-logo img{width:28px;height:28px;border-radius:6px;object-fit:contain}
+.pf-logo-text{font-family:var(–display);font-size:13px;font-weight:800}
+.pf-logo-text em{font-style:normal;color:#ff3b5c}
+.pf-date{font-size:8px;color:var(–muted);letter-spacing:1px}
+.pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.pf-stat-l{font-size:7px;letter-spacing:1px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
+.pf-stat-v{font-size:14px;font-weight:700;font-family:var(–display)}
+.pf-positions{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.pf-pos-row{display:flex;justify-content:space-between;align-items:center;
+padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:5px;
+border-left:2px solid transparent}
+.pf-pos-row.safe{border-left-color:var(–safe)}
+.pf-pos-row.warn{border-left-color:var(–warn)}
+.pf-pos-row.danger{border-left-color:#ff3b5c}
+.pf-pos-row.dead{border-left-color:var(–muted)}
+.pf-pos-name{font-size:10px;font-weight:600}
+.pf-pos-pair{font-size:8px;color:var(–muted);margin-top:1px}
+.pf-pos-hf{font-size:13px;font-weight:700;font-family:var(–display)}
+.pf-footer{font-size:8px;letter-spacing:1px;color:var(–muted);
+border-top:1px solid var(–border);padding-top:10px;
+display:flex;justify-content:space-between}
+
+/* ── PROTO BADGE in card ── */
+.proto-logo{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;
+justify-content:center;font-family:var(–display);font-size:11px;font-weight:800;flex-shrink:0}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -382,7 +421,7 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
   <div class="form-head">Add Position</div>
   <div class="f-group">
     <label class="f-label">Protocol</label>
-    <select class="f-select" id="fProto">
+    <select class="f-select" id="fProto" onchange="autoFillProtocol()">
       <option value="Aave">Aave v3</option>
       <option value="Compound">Compound v3</option>
       <option value="MakerDAO">MakerDAO</option>
@@ -393,7 +432,7 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
   <div class="f-row">
     <div class="f-group">
       <label class="f-label">Collateral</label>
-      <select class="f-select" id="fCollAsset">
+      <select class="f-select" id="fCollAsset" onchange="autoFillProtocol()">
         <option value="ETH">ETH</option>
         <option value="BTC">BTC</option>
         <option value="SOL">SOL</option>
@@ -431,6 +470,15 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
       <option value="0.65">65% — Aggressive</option>
     </select>
   </div>
+  <div class="f-group" style="margin-top:4px">
+    <label class="f-label">Alert me when HF drops below</label>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="range" id="fAlertThresh" min="1.0" max="3.0" step="0.1" value="1.5"
+        style="flex:1" oninput="document.getElementById('fAlertVal').textContent=parseFloat(this.value).toFixed(1)">
+      <span id="fAlertVal" style="font-size:13px;font-weight:600;color:var(--warn);min-width:28px">1.5</span>
+    </div>
+    <div style="font-size:8px;color:var(--muted);margin-top:3px;letter-spacing:1px">Browser notification fires at this threshold</div>
+  </div>
   <button class="calc-btn" onclick="addPos()" type="button">CALCULATE RISK →</button>
 </div>
 
@@ -459,13 +507,22 @@ transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
 <div class="overlay" id="shareOverlay" onclick="if(event.target===this)closeShare()">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">Share Position</div>
+      <div class="modal-title">Share</div>
       <button class="modal-x" onclick="closeShare()">✕</button>
     </div>
-    <select class="m-select" id="shareSel" onchange="renderShareCard()">
-      <option value="">— select position —</option>
-    </select>
-    <div id="shareCardWrap"></div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button class="tb-btn tb-share" style="flex:1;justify-content:center" id="tabPortfolio" onclick="switchShareTab('portfolio')">📊 PORTFOLIO</button>
+      <button class="tb-btn" style="flex:1;justify-content:center;border-color:var(--border2);color:var(--muted)" id="tabSingle" onclick="switchShareTab('single')">📌 SINGLE</button>
+    </div>
+    <div id="portfolioTab">
+      <div id="shareCardWrap"></div>
+    </div>
+    <div id="singleTab" style="display:none">
+      <select class="m-select" id="shareSel" onchange="renderShareCard()">
+        <option value="">— select position —</option>
+      </select>
+      <div id="singleCardWrap"></div>
+    </div>
   </div>
 </div>
 
@@ -632,6 +689,7 @@ function renderAll(){
         +'<div class="pc-m"><div class="pc-m-l">Drop to Liq.</div><div class="pc-m-v" style="color:'+col+'">'+c.drop.toFixed(1)+'%</div></div>'
       +'</div>'
       +'<div class="alert-box '+abClass+'">'+abMsg+'</div>'
+      + renderSparkline(pos.id, col)
     +'</div>';
   });
   list.innerHTML=html;
@@ -691,6 +749,7 @@ function addPos(){
     debtAmt:dAmt,
     thresh:parseFloat(document.getElementById('fThresh').value),
   };
+  newPos.alertThresh = parseFloat(document.getElementById('fAlertThresh').value) || 1.5;
   positions.push(newPos);
   collAmtEl.value='';
   debtAmtEl.value='';
@@ -861,7 +920,10 @@ function openShare(){
     o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);
   });
   if(positions.length===1){sel.value=positions[0].id;renderShareCard();}
+  // Show portfolio card tab
   document.getElementById('shareOverlay').classList.add('show');
+  // Default to portfolio view
+  renderPortfolioCard();
 }
 function closeShare(){document.getElementById('shareOverlay').classList.remove('show');}
 
@@ -907,6 +969,204 @@ function copyShare(id){
 // ═══════════ UTILS ═══════════
 function scrollToForm(){document.getElementById('addForm').scrollIntoView({behavior:'smooth'});}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
+
+
+// ═══════════════════════════════════
+// PROTOCOL DATA — real LTV thresholds
+// ═══════════════════════════════════
+var PROTOCOL_DATA = {
+  'Aave': {
+    'ETH': {thresh:0.85, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
+    'BTC': {thresh:0.80, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
+    'SOL': {thresh:0.75, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
+    'BNB': {thresh:0.75, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
+    'AVAX': {thresh:0.70, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
+    'default': {thresh:0.80}
+  },
+  'Compound': {
+    'ETH': {thresh:0.83},
+    'BTC': {thresh:0.80},
+    'default': {thresh:0.75}
+  },
+  'MakerDAO': {
+    'ETH': {thresh:0.77},
+    'BTC': {thresh:0.75},
+    'default': {thresh:0.70}
+  },
+  'Venus': {
+    'ETH': {thresh:0.80},
+    'BTC': {thresh:0.80},
+    'default': {thresh:0.75}
+  },
+  'Custom': {
+    'default': {thresh:0.75}
+  }
+};
+
+var PROTO_LOGOS = {
+  'Aave': 'https://cryptologos.cc/logos/aave-aave-logo.png',
+  'Compound': 'https://cryptologos.cc/logos/compound-comp-logo.png',
+  'MakerDAO': 'https://cryptologos.cc/logos/maker-mkr-logo.png',
+  'Venus': 'https://cryptologos.cc/logos/venus-xvs-logo.png',
+};
+
+function autoFillProtocol() {
+  var proto = document.getElementById('fProto').value;
+  var coll = document.getElementById('fCollAsset').value;
+  var pd = PROTOCOL_DATA[proto];
+  if (!pd) return;
+  var data = pd[coll] || pd['default'];
+  if (data && data.thresh) {
+    var sel = document.getElementById('fThresh');
+    // Find closest option
+    var best = null, bestDiff = 999;
+    for (var i=0; i<sel.options.length; i++) {
+      var diff = Math.abs(parseFloat(sel.options[i].value) - data.thresh);
+      if (diff < bestDiff) { bestDiff = diff; best = i; }
+    }
+    if (best !== null) sel.selectedIndex = best;
+  }
+}
+
+// ═══════════════════════════════════
+// POSITION HISTORY — track HF over time
+// ═══════════════════════════════════
+var posHistory = {}; // posId -> [{t, hf}]
+
+function recordHistory() {
+  positions.forEach(function(pos) {
+    var c = calcHF(pos);
+    if (!posHistory[pos.id]) posHistory[pos.id] = [];
+    posHistory[pos.id].push({t: Date.now(), hf: c.hf === 999 ? 3 : Math.min(3, c.hf)});
+    if (posHistory[pos.id].length > 60) posHistory[pos.id].shift(); // keep 5 min at 5s intervals
+  });
+}
+
+function renderSparkline(posId, color) {
+  var hist = posHistory[posId];
+  if (!hist || hist.length < 2) return '';
+  var vals = hist.map(function(h){return h.hf;});
+  var min = Math.min.apply(null, vals) * 0.95;
+  var max = Math.max.apply(null, vals) * 1.05;
+  var range = max - min || 0.1;
+  var W = 300, H = 36;
+  var pts = vals.map(function(v, i) {
+    var x = (i / (vals.length-1)) * W;
+    var y = H - ((v - min) / range) * (H - 4) - 2;
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  // Add danger line at HF=1
+  var dangerY = H - ((1 - min) / range) * (H - 4) - 2;
+  var dangerLine = dangerY > 0 && dangerY < H
+    ? '<line x1="0" y1="'+dangerY.toFixed(1)+'" x2="'+W+'" y2="'+dangerY.toFixed(1)+'" stroke="rgba(255,59,92,0.3)" stroke-width="1" stroke-dasharray="3,3"/>'
+    : '';
+  return '<div class="sparkline-wrap">'
+    + '<div class="sparkline-label">Health Factor History (last ' + hist.length*5 + 's)</div>'
+    + '<svg class="sparkline-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
+      + dangerLine
+      + '<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<circle cx="'+(parseFloat(pts.split(' ').pop().split(',')[0])).toFixed(1)+'" cy="'+(parseFloat(pts.split(' ').pop().split(',')[1])).toFixed(1)+'" r="3" fill="'+color+'"/>'
+    + '</svg>'
+  + '</div>';
+}
+
+// ═══════════════════════════════════
+// PORTFOLIO SHARE CARD
+// ═══════════════════════════════════
+function renderPortfolioCard() {
+  var wrap = document.getElementById('shareCardWrap');
+  if (!positions.length) { wrap.innerHTML = '<div style="color:var(--muted);font-size:11px">Add positions first</div>'; return; }
+
+  var totalColl = 0, totalDebt = 0, atRisk = 0, danger = 0;
+  var posRows = '';
+  positions.forEach(function(pos) {
+    var c = calcHF(pos), s = status(c.hf), col = statusColor(s);
+    totalColl += c.cUSD; totalDebt += c.dUSD;
+    if (s==='warn') atRisk++;
+    if (s==='danger'||s==='dead') danger++;
+    var hfStr = c.hf === 999 ? '∞' : c.hf.toFixed(2);
+    posRows += '<div class="pf-pos-row '+s+'">'
+      + '<div><div class="pf-pos-name">'+pos.proto+' — '+pos.coll+'→'+pos.debt+'</div>'
+        + '<div class="pf-pos-pair">Liq. at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
+      + '<div class="pf-pos-hf" style="color:'+col+'">'+hfStr+'</div>'
+    + '</div>';
+  });
+
+  var overallEmoji = danger > 0 ? '🚨' : atRisk > 0 ? '⚠️' : '✅';
+  var overallText = danger > 0 ? 'AT RISK' : atRisk > 0 ? 'WARNING' : 'HEALTHY';
+  var overallColor = danger > 0 ? '#ff3b5c' : atRisk > 0 ? 'var(--warn)' : 'var(--safe)';
+
+  wrap.innerHTML = '<div class="portfolio-card">'
+    + '<div class="pf-header">'
+      + '<div class="pf-logo">'
+        + '<img src="https://raw.githubusercontent.com/BamBambott/pythrisk/main/logo.jpeg.png" style="width:28px;height:28px;border-radius:6px;object-fit:contain">'
+        + '<div class="pf-logo-text">Pyth<em>Risk</em></div>'
+      + '</div>'
+      + '<div class="pf-date">'+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</div>'
+    + '</div>'
+    + '<div class="pf-stats">'
+      + '<div><div class="pf-stat-l">Positions</div><div class="pf-stat-v">'+positions.length+'</div></div>'
+      + '<div><div class="pf-stat-l">Collateral</div><div class="pf-stat-v" style="color:var(--safe)">$'+totalColl.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+      + '<div><div class="pf-stat-l">Total Debt</div><div class="pf-stat-v">$'+totalDebt.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+      + '<div><div class="pf-stat-l">Status</div><div class="pf-stat-v" style="color:'+overallColor+'">'+overallEmoji+'</div></div>'
+    + '</div>'
+    + '<div class="pf-positions">'+posRows+'</div>'
+    + '<div class="pf-footer">'
+      + '<span>pythrisk.vercel.app</span>'
+      + '<span>Powered by Pyth Network</span>'
+    + '</div>'
+  + '</div>'
+  + '<button class="copy-btn" style="margin-top:10px" onclick="copyPortfolioText()">📋 COPY FOR TWITTER</button>';
+}
+
+function copyPortfolioText() {
+  var totalColl = 0, totalDebt = 0, atRisk = 0, danger = 0;
+  var lines = '';
+  positions.forEach(function(pos) {
+    var c = calcHF(pos), s = status(c.hf);
+    totalColl += c.cUSD; totalDebt += c.dUSD;
+    if (s==='warn') atRisk++;
+    if (s==='danger'||s==='dead') danger++;
+    var e = {safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[s];
+    lines += e+' '+pos.proto+' '+pos.coll+'→'+pos.debt+' | HF: '+(c.hf===999?'∞':c.hf.toFixed(2))+' | Liq: $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'\n';
+  });
+  var txt = '📊 My DeFi Portfolio Risk Report\n\n'
+    + lines
+    + '\n💰 Total Collateral: $'+totalColl.toLocaleString('en-US',{maximumFractionDigits:0})
+    + '\n💸 Total Debt: $'+totalDebt.toLocaleString('en-US',{maximumFractionDigits:0})
+    + '\n\nTracked in real-time with @PythNetwork price feeds 👇\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
+  navigator.clipboard.writeText(txt.replace(/\n/g,'\n')).then(function(){
+    toast('Portfolio report copied for Twitter! 🐦');
+  });
+}
+
+// ═══════════════════════════════════
+// ALERT THRESHOLD per position
+// ═══════════════════════════════════
+function checkAlerts() {
+  if (!alertsOn) return;
+  positions.forEach(function(pos) {
+    var c = calcHF(pos), s = status(c.hf);
+    var thresh = pos.alertThresh || 1.5;
+    var key = pos.id + '-' + (c.hf < thresh ? 'below' : 'above');
+    if (c.hf < thresh && c.hf > 0 && !alerted[key]) {
+      alerted[key] = true;
+      var title = c.hf <= 1 ? '☠️ LIQUIDATED: ' + pos.proto : '🚨 ALERT: ' + pos.proto + ' HF below ' + thresh;
+      var body = pos.coll+'→'+pos.debt+' | HF: '+c.hf.toFixed(3)+' | Liq at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2});
+      new Notification(title, {body: body});
+    }
+  });
+}
+
+
+function switchShareTab(tab) {
+  document.getElementById('portfolioTab').style.display = tab==='portfolio' ? 'block' : 'none';
+  document.getElementById('singleTab').style.display = tab==='single' ? 'block' : 'none';
+  document.getElementById('tabPortfolio').className = 'tb-btn ' + (tab==='portfolio' ? 'tb-share' : '');
+  document.getElementById('tabPortfolio').style = tab==='portfolio' ? 'flex:1;justify-content:center' : 'flex:1;justify-content:center;border-color:var(--border2);color:var(--muted)';
+  document.getElementById('tabSingle').style = tab==='single' ? 'flex:1;justify-content:center;border-color:var(--safe);color:var(--safe);background:rgba(0,229,160,0.08)' : 'flex:1;justify-content:center;border-color:var(--border2);color:var(--muted)';
+  if (tab==='portfolio') renderPortfolioCard();
+}
 
 // ═══════════ INIT ═══════════
 // Load demo immediately so site never looks empty
