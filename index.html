@@ -261,14 +261,24 @@ box-shadow:0 4px 20px rgba(255,59,92,0.3), 0 1px 0 rgba(255,255,255,0.15) inset}
 .calc-btn:active{transform:translateY(0)}
 
 /* TICKER */
-.ticker-block{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.05)}
-.block-head{font-size:8px;letter-spacing:2.5px;color:var(–muted);text-transform:uppercase;margin-bottom:12px}
+.ticker-block{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.05)}
+.block-head{font-size:8px;letter-spacing:2.5px;color:var(–muted);text-transform:uppercase;margin-bottom:10px}
 .tick-row{display:flex;justify-content:space-between;align-items:center;
-padding:7px 10px;border-radius:5px;margin-bottom:2px;
-background:rgba(255,255,255,0.02);font-size:11px;transition:background .15s}
-.tick-row:hover{background:rgba(255,255,255,0.04)}
-.tick-sym{color:var(–muted);font-size:10px}
-.tick-p{font-weight:500}.up{color:var(–safe)}.dn{color:#ff3b5c}
+padding:7px 8px;border-radius:6px;margin-bottom:2px;
+background:rgba(255,255,255,0.02);font-size:11px;transition:background .15s;gap:6px}
+.tick-row:hover{background:rgba(255,255,255,0.045)}
+.tick-left{display:flex;align-items:center;gap:8px;min-width:0}
+.tick-icon{width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;
+background:rgba(255,255,255,0.08)}
+.tick-icon-fallback{width:24px;height:24px;border-radius:50%;flex-shrink:0;
+display:flex;align-items:center;justify-content:center;
+font-size:8px;font-weight:700;font-family:var(–display)}
+.tick-sym{color:var(–muted);font-size:10px;letter-spacing:0.5px}
+.tick-name{font-size:10px;font-weight:600;color:var(–text)}
+.tick-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.tick-p{font-weight:500;font-size:11px;font-family:var(–mono)}
+.tick-chg{font-size:9px}
+.up{color:var(–safe)}.dn{color:#ff3b5c}
 
 /* STRESS */
 .stress-block{padding:16px 20px;border-top:1px solid var(–border)}
@@ -563,7 +573,7 @@ justify-content:center;font-family:var(–display);font-size:11px;font-weight:80
 
 <!-- LIVE PRICES -->
 <div class="ticker-block">
-  <div class="block-head">Live Pyth Prices</div>
+  <div class="block-head" style="display:flex;justify-content:space-between;align-items:center"><span>Live Pyth Prices</span><span style="font-size:7px;color:rgba(0,229,160,0.6);letter-spacing:1px">● PYTH HERMES</span></div>
   <div id="ticker"><div style="color:var(--muted);font-size:10px">Loading...</div></div>
 </div>
 
@@ -634,6 +644,40 @@ var FEEDS={
   USDC:'0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
   USDT:'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
   LINK:'0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
+  SUI:'0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744',
+  DOT:'0x6489800bb8974169adfe35937bf6736507097d13c190d760c557108c7e93a81b',
+  LTC:'0xca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b',
+  XRP:'0xec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8',
+  ATOM:'0xb00b60f88b03a6a625a8d1c048c3f66653edf217439983d037e7222c4e612819',
+  XAU:'0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2',
+  XAG:'0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e',
+};
+
+// Token logos from CoinGecko CDN
+var TOKEN_LOGOS={
+  BTC:'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+  ETH:'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+  SOL:'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+  BNB:'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+  AVAX:'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+  USDC:'https://assets.coingecko.com/coins/images/6319/small/usdc.png',
+  USDT:'https://assets.coingecko.com/coins/images/325/small/Tether.png',
+  LINK:'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png',
+  SUI:'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg',
+  DOT:'https://assets.coingecko.com/coins/images/12171/small/polkadot.png',
+  LTC:'https://assets.coingecko.com/coins/images/2/small/litecoin.png',
+  XRP:'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
+  ATOM:'https://assets.coingecko.com/coins/images/1481/small/cosmos_hub.png',
+  XAU:'https://assets.coingecko.com/coins/images/14549/small/gold.png',
+  XAG:'https://assets.coingecko.com/coins/images/14950/small/silver.png',
+};
+
+// Token colors for fallback
+var TOKEN_COLORS={
+  BTC:'#F7931A',ETH:'#627EEA',SOL:'#9945FF',BNB:'#F3BA2F',
+  AVAX:'#E84142',USDC:'#2775CA',USDT:'#26A17B',LINK:'#2A5ADA',
+  SUI:'#4DA2FF',DOT:'#E6007A',LTC:'#BFBBBB',XRP:'#00AAE4',
+  ATOM:'#6F7390',XAU:'#FFD700',XAG:'#C0C0C0',
 };
 var PROTO_COLORS={Aave:'#B6509E',Compound:'#00D395',MakerDAO:'#F5AC37',Venus:'#F0B90B',Custom:'#4f8fff'};
 
@@ -785,16 +829,45 @@ function updateKPIs(){
 }
 
 // ═══════════ TICKER ═══════════
+var TICKER_SYMS=['BTC','ETH','SOL','BNB','XRP','AVAX','LINK','SUI','DOT','LTC','ATOM','USDC','USDT','XAU','XAG'];
+
+function fmtTickerPrice(sym, p){
+  if(sym==='XAU'||sym==='XAG') return '$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(p>=1000) return '$'+p.toLocaleString('en-US',{maximumFractionDigits:2});
+  if(p>=1) return '$'+p.toFixed(3);
+  return '$'+p.toFixed(5);
+}
+
+function getTokenIcon(sym){
+  var logo=TOKEN_LOGOS[sym];
+  var color=TOKEN_COLORS[sym]||'#6b7280';
+  if(logo){
+    return '<img class="tick-icon" src="'+logo+'" alt="'+sym+'" onerror="this.outerHTML='<div class=\"tick-icon-fallback\" style=\"background:'+color+'22;color:'+color+'\">'+sym.slice(0,2)+'</div>'">';
+  }
+  return '<div class="tick-icon-fallback" style="background:'+color+'22;color:'+color+'">'+sym.slice(0,2)+'</div>';
+}
+
 function updateTicker(){
-  var syms=['BTC','ETH','SOL','BNB','AVAX'];
   var html='';
-  syms.forEach(function(sym){
+  TICKER_SYMS.forEach(function(sym){
     var p=prices[sym],prev=prevPrices[sym];
-    if(!p){html+='<div class="tick-row"><span class="tick-sym">'+sym+'</span><span class="tick-p" style="color:var(--muted)">—</span></div>';return;}
-    var ps=p>=1000?'$'+p.toLocaleString('en-US',{maximumFractionDigits:2}):'$'+p.toFixed(4);
+    var icon=getTokenIcon(sym);
+    if(!p){
+      html+='<div class="tick-row">'
+        +'<div class="tick-left">'+icon+'<div><div class="tick-name">'+sym+'</div><div class="tick-sym">USD</div></div></div>'
+        +'<div class="tick-right"><span class="tick-p" style="color:var(--muted)">—</span></div>'
+      +'</div>';
+      return;
+    }
+    var ps=fmtTickerPrice(sym,p);
     var chg=prev&&prev!==p?((p-prev)/prev*100):0;
-    var cs=chg>0?'<span class="up">▲'+chg.toFixed(3)+'%</span>':chg<0?'<span class="dn">▼'+Math.abs(chg).toFixed(3)+'%</span>':'';
-    html+='<div class="tick-row"><span class="tick-sym">'+sym+'/USD</span><span class="tick-p">'+ps+'</span>'+cs+'</div>';
+    var chgHtml=chg>0?'<span class="tick-chg up">▲'+Math.abs(chg).toFixed(3)+'%</span>'
+      :chg<0?'<span class="tick-chg dn">▼'+Math.abs(chg).toFixed(3)+'%</span>'
+      :'<span class="tick-chg" style="color:var(--muted)">—</span>';
+    html+='<div class="tick-row">'
+      +'<div class="tick-left">'+icon+'<div><div class="tick-name">'+sym+'</div><div class="tick-sym">/USD</div></div></div>'
+      +'<div class="tick-right"><span class="tick-p">'+ps+'</span>'+chgHtml+'</div>'
+    +'</div>';
   });
   document.getElementById('ticker').innerHTML=html;
 }
