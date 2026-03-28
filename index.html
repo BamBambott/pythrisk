@@ -10,471 +10,340 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#05050a;--card:#0c0c14;--card2:#11111a;
-  --border:#1a1a28;--border2:#24243a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
   --safe:#00e5a0;--warn:#f5a623;--danger:#ff3b5c;
-  --blue:#4f8fff;--purple:#7c5cfc;
-  --text:#f0f0fa;--muted:#50506e;
-  --glass:rgba(255,255,255,0.03);
-  --glass2:rgba(255,255,255,0.06);
-  --red-glow:rgba(255,59,92,0.15);
-  --green-glow:rgba(0,229,160,0.12);
+  --blue:#4f8fff;--text:#f0f0fa;--muted:#50506e;
   --mono:'DM Mono',monospace;--display:'Syne',sans-serif;
 }
 html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--mono);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 50% at 5% -5%,rgba(255,59,92,0.08) 0%,transparent 55%),
+             radial-gradient(ellipse 50% 40% at 95% 105%,rgba(0,229,160,0.05) 0%,transparent 55%)}
 
-/* ANIMATED BACKGROUND MESH */
-body::before{content:’’;position:fixed;inset:0;pointer-events:none;z-index:0;
-background:
-radial-gradient(ellipse 70% 60% at 5% -5%, rgba(255,59,92,0.09) 0%, transparent 55%),
-radial-gradient(ellipse 50% 40% at 95% 105%, rgba(0,229,160,0.06) 0%, transparent 55%),
-radial-gradient(ellipse 40% 30% at 50% 50%, rgba(124,92,252,0.04) 0%, transparent 60%);
-animation:bgShift 12s ease-in-out infinite alternate}
-@keyframes bgShift{
-0%{opacity:1}
-50%{opacity:0.7}
-100%{opacity:1}
-}
-
-/* GRID TEXTURE */
-body::after{content:’’;position:fixed;inset:0;pointer-events:none;z-index:0;
-background-image:
-linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
-background-size:40px 40px;
-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%)}
-
-/* ── HEADER ── */
+/* HEADER */
 header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
-padding:0 24px;height:60px;
-background:rgba(5,5,10,0.85);
-border-bottom:1px solid rgba(255,255,255,0.06);
-backdrop-filter:blur(24px) saturate(180%);
--webkit-backdrop-filter:blur(24px) saturate(180%);
-box-shadow:0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.4)}
+padding:0 20px;height:60px;background:rgba(5,5,10,0.9);
+border-bottom:1px solid var(–border);backdrop-filter:blur(20px)}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-hex{width:36px;height:36px;background:linear-gradient(135deg,#ff3b5c,#ff6035);
-clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-display:flex;align-items:center;justify-content:center;font-family:var(–display);font-size:12px;font-weight:800;color:white;
-box-shadow:0 0 20px rgba(255,59,92,0.4), 0 0 40px rgba(255,59,92,0.15);
-filter:drop-shadow(0 0 8px rgba(255,59,92,0.5))}
-.logo-text{font-family:var(–display);font-size:17px;font-weight:800}
+.logo img{width:36px;height:36px;border-radius:8px;object-fit:contain}
+.logo-text{font-family:var(–display);font-size:16px;font-weight:800}
 .logo-text span{color:#ff3b5c}
-.logo-sub{font-size:9px;color:var(–muted);letter-spacing:1.5px;margin-top:1px}
-.live-pill{display:flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;
-border:1px solid rgba(0,229,160,0.3);
-background:rgba(0,229,160,0.08);
-font-size:9px;letter-spacing:2px;color:var(–safe);
-box-shadow:0 0 20px rgba(0,229,160,0.08), inset 0 1px 0 rgba(0,229,160,0.1)}
-.dot{width:6px;height:6px;border-radius:50%;background:var(–safe);
-animation:blink 2s infinite;box-shadow:0 0 8px var(–safe)}
-@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 8px var(–safe)}50%{opacity:.4;box-shadow:none}}
+.logo-sub{font-size:9px;color:var(–muted);letter-spacing:1px;margin-top:1px}
+.live-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;
+border:1px solid rgba(0,229,160,0.25);background:rgba(0,229,160,0.07);
+font-size:9px;letter-spacing:2px;color:var(–safe)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(–safe);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ── HERO ── */
-.hero{position:relative;z-index:1;padding:44px 24px 36px;border-bottom:1px solid rgba(255,255,255,0.05);
-background:linear-gradient(180deg, rgba(255,59,92,0.03) 0%, transparent 100%)}
-.hero-tag{font-size:9px;letter-spacing:4px;color:#ff3b5c;text-transform:uppercase;margin-bottom:16px;
-display:flex;align-items:center;gap:10px;opacity:0.9}
-.hero-tag::before{content:’’;width:24px;height:1px;background:linear-gradient(90deg,transparent,#ff3b5c)}
-.hero h1{font-family:var(–display);font-size:clamp(28px,6vw,52px);font-weight:800;line-height:1.06;letter-spacing:-1.5px;margin-bottom:16px;
-background:linear-gradient(135deg,#ffffff 0%,rgba(255,255,255,0.75) 100%);
--webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero h1 em{font-style:normal;
-background:linear-gradient(135deg,#ff3b5c,#ff8c42);
--webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:12px;line-height:1.9;color:var(–muted);max-width:520px;margin-bottom:32px}
-.hero-kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;
-background:rgba(255,255,255,0.06);
-border:1px solid rgba(255,255,255,0.06);
-border-radius:12px;overflow:hidden}
-.kpi{display:flex;flex-direction:column;gap:4px;padding:14px 16px;
-background:rgba(255,255,255,0.02);}
-.kpi-n{font-family:var(–display);font-size:24px;font-weight:800;line-height:1}
-.kpi-l{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-top:2px}
+/* HERO */
+.hero{position:relative;z-index:1;padding:36px 20px 28px;border-bottom:1px solid var(–border)}
+.hero-tag{font-size:9px;letter-spacing:4px;color:#ff3b5c;text-transform:uppercase;margin-bottom:12px;opacity:.9}
+.hero h1{font-family:var(–display);font-size:clamp(24px,6vw,48px);font-weight:800;line-height:1.08;letter-spacing:-1px;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:#ff3b5c}
+.hero p{font-size:11px;line-height:1.9;color:var(–muted);margin-bottom:24px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(–border);border:1px solid var(–border);border-radius:10px;overflow:hidden}
+.kpi{background:rgba(255,255,255,0.02);padding:14px 16px}
+.kpi-n{font-family:var(–display);font-size:24px;font-weight:800}
+.kpi-l{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-top:3px}
 
-/* ── TOOLBAR ── */
-.toolbar{position:relative;z-index:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.05);
-background:rgba(12,12,20,0.8);backdrop-filter:blur(12px)}
-.tb-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:5px;
+/* TOOLBAR */
+.toolbar{position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap;
+padding:12px 20px;border-bottom:1px solid var(–border);background:rgba(12,12,20,0.8)}
+.btn{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:6px;
 font-size:9px;letter-spacing:1.5px;cursor:pointer;font-family:var(–mono);border:1px solid;transition:all .18s}
-.tb-add{border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08);color:#ff3b5c;
-box-shadow:0 0 12px rgba(255,59,92,0.1)}
-.tb-add:hover{background:rgba(255,59,92,.18);box-shadow:0 0 20px rgba(255,59,92,0.2);transform:translateY(-1px)}
-.tb-slider{border-color:var(–border2);background:transparent;color:var(–muted)}
-.tb-slider:hover,.tb-slider.on{border-color:var(–warn);color:var(–warn);background:rgba(245,166,35,.08)}
-.tb-whatif{border-color:var(–border2);background:transparent;color:var(–muted)}
-.tb-whatif:hover,.tb-whatif.on{border-color:var(–blue);color:var(–blue);background:rgba(79,143,255,.08)}
-.tb-share{border-color:var(–border2);background:transparent;color:var(–muted)}
-.tb-share:hover{border-color:var(–safe);color:var(–safe);background:rgba(0,229,160,.08)}
-.tb-alert{border-color:var(–border2);background:transparent;color:var(–muted)}
-.tb-alert.on{border-color:var(–warn);color:var(–warn);background:rgba(245,166,35,.08)}
-.tb-spacer{flex:1}
+.btn-red{border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08);color:#ff3b5c}
+.btn-red:hover{background:rgba(255,59,92,.18)}
+.btn-dim{border-color:var(–border);background:transparent;color:var(–muted)}
+.btn-dim:hover{border-color:rgba(255,255,255,.2);color:var(–text)}
+.btn-dim.on{border-color:var(–warn);color:var(–warn);background:rgba(245,166,35,.08)}
 
-/* ── PANEL: SLIDER ── */
-.panel{display:none;padding:20px 24px;border-bottom:2px solid var(–border);background:var(–card);animation:fadeIn .2s}
+/* PANEL */
+.panel{display:none;padding:18px 20px;border-bottom:1px solid var(–border);background:var(–card)}
 .panel.show{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.panel-title{font-family:var(–display);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:16px;
-display:flex;justify-content:space-between;align-items:center}
-.panel-close{font-size:10px;color:var(–muted);background:none;border:1px solid var(–border);
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+font-family:var(–display);font-size:11px;font-weight:700;letter-spacing:1px}
+.panel-close{font-size:9px;color:var(–muted);background:none;border:1px solid var(–border);
 padding:3px 10px;border-radius:3px;cursor:pointer;font-family:var(–mono)}
-.panel-close:hover{color:var(–text);border-color:var(–muted)}
 
-/* Sliders */
-.sl-item{margin-bottom:16px}
-.sl-head{display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px}
-.sl-sym{color:var(–muted)}.sl-val{font-weight:500}
+/* SLIDER */
+.sl-item{margin-bottom:14px}
+.sl-head{display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px}
 input[type=range]{width:100%;-webkit-appearance:none;height:3px;border-radius:2px;outline:none;cursor:pointer;
-background:linear-gradient(to right,#ff3b5c 0%,var(–warn) 50%,var(–safe) 100%)}
+background:linear-gradient(to right,#ff3b5c,var(–warn),var(–safe))}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
-border-radius:50%;background:white;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.5)}
-.sl-bounds{display:flex;justify-content:space-between;font-size:8px;color:var(–muted);margin-top:3px}
+border-radius:50%;background:white;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.sl-bounds{display:flex;justify-content:space-between;font-size:8px;color:var(–muted);margin-top:2px}
 
-/* What If */
-.wi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
-@media(max-width:500px){.wi-grid{grid-template-columns:1fr}}
+/* WHAT IF */
+.wi-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
 .wi-card{background:var(–card2);border:1px solid var(–border);border-radius:6px;padding:12px}
 .wi-label{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:6px}
-.wi-row{display:flex;gap:6px;margin-bottom:8px}
+.wi-row{display:flex;gap:6px}
 .wi-input{flex:1;padding:7px 10px;background:var(–bg);border:1px solid var(–border2);
 border-radius:4px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none}
-.wi-input:focus{border-color:var(–blue)}
 .wi-calc{padding:7px 12px;border-radius:4px;background:rgba(79,143,255,.1);border:1px solid rgba(79,143,255,.3);
-color:var(–blue);font-size:9px;cursor:pointer;font-family:var(–mono);white-space:nowrap}
-.wi-pos-select{width:100%;padding:8px 10px;background:var(–card2);border:1px solid var(–border2);
-border-radius:4px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;margin-bottom:12px;cursor:pointer}
-.wi-result{display:none;margin-top:10px;padding:12px;background:var(–bg);border:1px solid var(–border);
-border-radius:6px;font-size:11px;line-height:2}
+color:var(–blue);font-size:9px;cursor:pointer;font-family:var(–mono)}
+.wi-select{width:100%;padding:8px 10px;background:var(–card2);border:1px solid var(–border);
+border-radius:4px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;margin-bottom:10px;cursor:pointer}
+.wi-result{display:none;padding:12px;background:var(–bg);border:1px solid var(–border);border-radius:6px;font-size:11px;line-height:2;margin-top:10px}
 .wi-result.show{display:block}
 
-/* ── MAIN CONTENT ── */
-.content{position:relative;z-index:1;display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 60px)}
-@media(max-width:700px){.content{grid-template-columns:1fr}}
+/* MAIN */
+.main{position:relative;z-index:1;display:grid;grid-template-columns:1fr 300px}
+@media(max-width:680px){.main{grid-template-columns:1fr}}
 
-/* LEFT: positions */
+/* POSITIONS */
 .pos-pane{border-right:1px solid var(–border)}
-.pos-pane-head{padding:14px 24px;border-bottom:1px solid rgba(255,255,255,0.05);
-font-size:8px;letter-spacing:3px;color:var(–muted);text-transform:uppercase;
-background:rgba(255,255,255,0.015)}
+.pos-head{padding:12px 20px;border-bottom:1px solid var(–border);
+font-size:8px;letter-spacing:3px;color:var(–muted);text-transform:uppercase;background:rgba(255,255,255,.01)}
 
-/* POSITION CARD */
-.pos-card{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:default;
-transition:all .2s;border-left:3px solid transparent;position:relative;
-background:transparent}
+.pos-card{padding:18px 20px;border-bottom:1px solid var(–border);border-left:3px solid transparent;transition:all .2s}
 .pos-card.safe{border-left-color:var(–safe)}
 .pos-card.warn{border-left-color:var(–warn)}
-.pos-card.danger{border-left-color:#ff3b5c;animation:dangerPulse 3s infinite}
-.pos-card.dead{border-left-color:rgba(100,100,120,0.5)}
-@keyframes dangerPulse{
-0%,100%{background:transparent;box-shadow:none}
-50%{background:rgba(255,59,92,.025);box-shadow:inset 3px 0 20px rgba(255,59,92,0.05)}}
-.pos-card:hover{background:rgba(255,255,255,.02);transform:translateX(2px)}
+.pos-card.danger{border-left-color:#ff3b5c;animation:dpulse 3s infinite}
+.pos-card.dead{border-left-color:var(–muted)}
+@keyframes dpulse{0%,100%{background:transparent}50%{background:rgba(255,59,92,.03)}}
+.pos-card:hover{background:rgba(255,255,255,.015)}
 
-.pc-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.pc-left{display:flex;align-items:center;gap:10px}
-.pc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-font-family:var(–display);font-size:12px;font-weight:800;flex-shrink:0}
+.pc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pc-info{display:flex;align-items:center;gap:9px}
+.pc-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+font-family:var(–display);font-size:11px;font-weight:800;flex-shrink:0}
 .pc-name{font-family:var(–display);font-size:14px;font-weight:700}
-.pc-pair{font-size:10px;color:var(–muted);margin-top:2px;letter-spacing:.5px}
+.pc-pair{font-size:10px;color:var(–muted);margin-top:2px}
 .pc-right{display:flex;align-items:center;gap:8px}
-.badge{padding:5px 12px;border-radius:20px;font-size:8px;letter-spacing:2px;text-transform:uppercase;border:1px solid;font-weight:600}
-.badge.safe{color:var(–safe);border-color:rgba(0,229,160,.3);background:rgba(0,229,160,.08);box-shadow:0 0 12px rgba(0,229,160,0.1)}
-.badge.warn{color:var(–warn);border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.08);box-shadow:0 0 12px rgba(245,166,35,0.1)}
-.badge.danger{color:#ff3b5c;border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.1);box-shadow:0 0 12px rgba(255,59,92,0.15)}
-.badge.dead{color:var(–muted);border-color:rgba(100,100,120,.3);background:rgba(100,100,120,.08)}
-.del-btn{background:none;border:none;color:var(–muted);font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
-.del-btn:hover{color:#ff3b5c}
+.badge{padding:4px 12px;border-radius:20px;font-size:8px;letter-spacing:2px;text-transform:uppercase;border:1px solid;font-weight:600}
+.badge.safe{color:var(–safe);border-color:rgba(0,229,160,.3);background:rgba(0,229,160,.07)}
+.badge.warn{color:var(–warn);border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.07)}
+.badge.danger{color:#ff3b5c;border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08)}
+.badge.dead{color:var(–muted);border-color:rgba(100,100,120,.3);background:rgba(100,100,120,.06)}
+.del{background:none;border:none;color:var(–muted);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1}
+.del:hover{color:#ff3b5c}
 
-/* HF BAR */
-.hf-wrap{margin-bottom:14px}
-.hf-head{display:flex;justify-content:space-between;font-size:10px;margin-bottom:5px}
+.hf-wrap{margin-bottom:12px}
+.hf-top{display:flex;justify-content:space-between;font-size:10px;margin-bottom:5px}
 .hf-label{color:var(–muted)}.hf-val{font-weight:600}
-.hf-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;
-box-shadow:inset 0 1px 3px rgba(0,0,0,0.4)}
-.hf-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(0.4,0,0.2,1);
-box-shadow:0 0 8px currentColor}
+.hf-track{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.hf-fill{height:100%;border-radius:3px;transition:width .8s ease}
 
-/* METRICS */
-.pc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-@media(max-width:400px){.pc-metrics{grid-template-columns:repeat(2,1fr)}}
-.pc-m{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);
-border-radius:6px;padding:10px 12px;backdrop-filter:blur(4px);
-transition:border-color .2s}
-.pc-m:hover{border-color:rgba(255,255,255,0.1)}
-.pc-m-l{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
-.pc-m-v{font-size:12px;font-weight:500}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.metric{background:rgba(255,255,255,.025);border:1px solid var(–border);border-radius:5px;padding:9px 10px}
+.metric-l{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
+.metric-v{font-size:12px;font-weight:500}
 
-/* ALERT BOX */
-.alert-box{padding:9px 12px;border-radius:5px;font-size:10px;line-height:1.6;border:1px solid}
-.ab-safe{background:rgba(0,229,160,.04);border-color:rgba(0,229,160,.12);color:rgba(0,229,160,.8);
-box-shadow:inset 0 1px 0 rgba(0,229,160,0.05)}
-.ab-warn{background:rgba(245,166,35,.05);border-color:rgba(245,166,35,.2);color:var(–warn);
-box-shadow:inset 0 1px 0 rgba(245,166,35,0.05)}
-.ab-danger{background:rgba(255,59,92,.06);border-color:rgba(255,59,92,.25);color:#ff3b5c;
-animation:flashBorder 2s infinite;box-shadow:inset 0 1px 0 rgba(255,59,92,0.08)}
-@keyframes flashBorder{0%,100%{border-color:rgba(255,59,92,.25);box-shadow:inset 0 1px 0 rgba(255,59,92,0.08)}
-50%{border-color:rgba(255,59,92,.6);box-shadow:0 0 12px rgba(255,59,92,0.1),inset 0 1px 0 rgba(255,59,92,0.1)}}
+.alert-box{padding:9px 12px;border-radius:5px;font-size:10px;line-height:1.7;border:1px solid}
+.ab-safe{background:rgba(0,229,160,.04);border-color:rgba(0,229,160,.15);color:rgba(0,229,160,.85)}
+.ab-warn{background:rgba(245,166,35,.05);border-color:rgba(245,166,35,.2);color:var(–warn)}
+.ab-danger{background:rgba(255,59,92,.05);border-color:rgba(255,59,92,.25);color:#ff3b5c;animation:fborder 2s infinite}
+@keyframes fborder{0%,100%{border-color:rgba(255,59,92,.25)}50%{border-color:rgba(255,59,92,.6)}}
 .ab-dead{background:rgba(100,100,120,.04);border-color:rgba(100,100,120,.15);color:var(–muted)}
 
-/* EMPTY */
-.empty{padding:72px 24px;text-align:center;color:var(–muted)}
-.empty-icon{font-size:40px;margin-bottom:16px;opacity:.25;filter:grayscale(1)}
-.empty h3{font-family:var(–display);font-size:18px;font-weight:700;color:var(–text);margin-bottom:8px}
-.empty p{font-size:11px;line-height:1.8;max-width:260px;margin:0 auto 24px;color:var(–muted)}
-.empty-cta{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;
+.spark-wrap{margin-top:10px}
+.spark-label{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
+
+.empty{padding:60px 20px;text-align:center;color:var(–muted)}
+.empty-icon{font-size:36px;margin-bottom:14px;opacity:.25}
+.empty h3{font-family:var(–display);font-size:16px;font-weight:700;color:var(–text);margin-bottom:8px}
+.empty p{font-size:11px;line-height:1.8;max-width:240px;margin:0 auto 20px}
+.empty-cta{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;
 background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.3);color:#ff3b5c;
-font-size:10px;letter-spacing:1.5px;cursor:pointer;font-family:var(–mono);
-box-shadow:0 0 20px rgba(255,59,92,0.08);transition:all .2s}
-.empty-cta:hover{background:rgba(255,59,92,.15);transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,59,92,0.15)}
+font-size:10px;letter-spacing:1.5px;cursor:pointer;font-family:var(–mono)}
 
-/* RIGHT: sidebar */
-.sidebar{border-left:none}
-@media(max-width:700px){.sidebar{border-top:1px solid var(–border)}}
+/* SIDEBAR */
+.sidebar{}
+@media(max-width:680px){.sidebar{border-top:1px solid var(–border)}}
 
-/* ADD FORM */
-.form-block{padding:20px;
-background:linear-gradient(180deg,rgba(255,59,92,0.03) 0%,transparent 40%)}
-.form-head{font-size:9px;letter-spacing:3px;color:var(–muted);text-transform:uppercase;
-margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.form-head::after{content:’’;flex:1;height:1px;
-background:linear-gradient(90deg,rgba(255,59,92,0.3),transparent)}
-.f-group{margin-bottom:12px}
+.form-block{padding:18px 16px;background:rgba(255,59,92,.02)}
+.form-head{font-size:8px;letter-spacing:3px;color:var(–muted);text-transform:uppercase;margin-bottom:16px;
+display:flex;align-items:center;gap:8px}
+.form-head::after{content:’’;flex:1;height:1px;background:linear-gradient(90deg,rgba(255,59,92,.3),transparent)}
+.f-group{margin-bottom:11px}
 .f-label{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:5px;display:block}
-.f-input,.f-select{width:100%;padding:10px 12px;
-background:rgba(255,255,255,0.04);
-border:1px solid rgba(255,255,255,0.08);
-border-radius:6px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;
-transition:all .2s;box-shadow:inset 0 1px 3px rgba(0,0,0,0.3)}
-.f-input:focus,.f-select:focus{border-color:rgba(255,59,92,0.5);
-box-shadow:0 0 0 3px rgba(255,59,92,0.08),inset 0 1px 3px rgba(0,0,0,0.3)}
+.f-input,.f-select{width:100%;padding:9px 11px;background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.08);border-radius:5px;color:var(–text);font-family:var(–mono);
+font-size:11px;outline:none;transition:border .2s}
+.f-input:focus,.f-select:focus{border-color:rgba(255,59,92,.5)}
 .f-select{cursor:pointer;-webkit-appearance:none;
 background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘10’ height=‘6’%3E%3Cpath d=‘M0 0l5 6 5-6z’ fill=’%2352526e’/%3E%3C/svg%3E”);
-background-repeat:no-repeat;background-position:right 12px center;
-background-color:rgba(255,255,255,0.04);padding-right:28px}
+background-repeat:no-repeat;background-position:right 11px center;padding-right:28px}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.calc-btn{width:100%;padding:13px;border-radius:8px;
-background:linear-gradient(135deg,#ff3b5c 0%,#ff6035 100%);
+.calc-btn{width:100%;padding:12px;border-radius:7px;
+background:linear-gradient(135deg,#ff3b5c,#ff6035);
 border:none;color:white;font-family:var(–display);font-size:11px;font-weight:700;
-letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:4px;
-box-shadow:0 4px 20px rgba(255,59,92,0.3), 0 1px 0 rgba(255,255,255,0.15) inset}
-.calc-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(255,59,92,0.4), 0 1px 0 rgba(255,255,255,0.15) inset}
-.calc-btn:active{transform:translateY(0)}
+letter-spacing:2px;cursor:pointer;margin-top:4px;
+box-shadow:0 4px 20px rgba(255,59,92,.3);transition:all .2s}
+.calc-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(255,59,92,.4)}
 
-/* TICKER */
-.ticker-block{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.05)}
-.block-head{font-size:8px;letter-spacing:2.5px;color:var(–muted);text-transform:uppercase;margin-bottom:10px}
+.ticker-block{padding:14px 16px;border-top:1px solid var(–border)}
+.block-head{font-size:8px;letter-spacing:2.5px;color:var(–muted);text-transform:uppercase;margin-bottom:10px;
+display:flex;justify-content:space-between;align-items:center}
 .tick-row{display:flex;justify-content:space-between;align-items:center;
-padding:7px 8px;border-radius:6px;margin-bottom:2px;
-background:rgba(255,255,255,0.02);font-size:11px;transition:background .15s;gap:6px}
-.tick-row:hover{background:rgba(255,255,255,0.045)}
-.tick-left{display:flex;align-items:center;gap:8px;min-width:0}
-.tick-icon{width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;
-background:rgba(255,255,255,0.08)}
-.tick-icon-fallback{width:24px;height:24px;border-radius:50%;flex-shrink:0;
-display:flex;align-items:center;justify-content:center;
-font-size:8px;font-weight:700;font-family:var(–display)}
-.tick-sym{color:var(–muted);font-size:10px;letter-spacing:0.5px}
-.tick-name{font-size:10px;font-weight:600;color:var(–text)}
-.tick-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.tick-p{font-weight:500;font-size:11px;font-family:var(–mono)}
+padding:7px 8px;border-radius:5px;margin-bottom:2px;background:rgba(255,255,255,.02);font-size:11px;transition:background .15s}
+.tick-row:hover{background:rgba(255,255,255,.04)}
+.tick-left{display:flex;align-items:center;gap:8px}
+.tick-icon{width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.tick-icon-fb{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+justify-content:center;font-size:7px;font-weight:700;font-family:var(–display)}
+.tick-sym{font-size:11px;font-weight:600}
+.tick-sub{font-size:8px;color:var(–muted)}
+.tick-right{text-align:right}
+.tick-p{font-size:11px;font-weight:500}
 .tick-chg{font-size:9px}
 .up{color:var(–safe)}.dn{color:#ff3b5c}
 
-/* STRESS */
-.stress-block{padding:16px 20px;border-top:1px solid var(–border)}
-.st-btn{width:100%;padding:9px;border-radius:6px;margin-bottom:6px;cursor:pointer;font-family:var(–mono);
-font-size:9px;letter-spacing:1px;
-border:1px solid rgba(255,255,255,0.07);
-background:rgba(255,255,255,0.02);color:var(–muted);transition:all .2s}
-.st-btn:hover{border-color:rgba(245,166,35,.4);color:var(–warn);
-background:rgba(245,166,35,.06);transform:translateX(2px)}
-.st-btn.reset:hover{border-color:rgba(0,229,160,.4);color:var(–safe);
-background:rgba(0,229,160,.06);transform:translateX(2px)}
+.stress-block{padding:14px 16px;border-top:1px solid var(–border)}
+.st-btn{width:100%;padding:8px;border-radius:5px;margin-bottom:5px;cursor:pointer;font-family:var(–mono);
+font-size:9px;letter-spacing:1px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);
+color:var(–muted);transition:all .2s;text-align:left;padding-left:12px}
+.st-btn:hover{border-color:rgba(245,166,35,.4);color:var(–warn);background:rgba(245,166,35,.06)}
+.st-btn.reset-btn:hover{border-color:rgba(0,229,160,.4);color:var(–safe);background:rgba(0,229,160,.06)}
 .st-result{display:none;margin-top:8px;padding:10px;background:var(–card2);border:1px solid var(–border);
 border-radius:5px;font-size:10px;color:var(–muted);line-height:1.8}
 .st-result.show{display:block}
 
-/* SHARE MODAL */
-.overlay{position:fixed;inset:0;
-background:rgba(0,0,0,.85);
-backdrop-filter:blur(8px);
-z-index:300;display:none;
-align-items:flex-end;justify-content:center;padding:0}
-.overlay.show{display:flex;animation:fadeIn .15s ease}
-.modal{
-background:rgba(12,12,20,0.98);
-border:1px solid rgba(255,255,255,0.08);
-border-radius:16px 16px 0 0;
-padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;
-box-shadow:0 -20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)}
-@media(min-width:500px){.overlay{align-items:center;padding:20px}
-.modal{border-radius:16px;max-height:90vh;box-shadow:0 24px 80px rgba(0,0,0,0.7)}}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+z-index:300;display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:rgba(12,12,20,.98);border:1px solid rgba(255,255,255,.08);border-radius:16px 16px 0 0;
+padding:22px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto}
+@media(min-width:500px){.overlay{align-items:center;padding:20px}.modal{border-radius:16px}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 .modal-title{font-family:var(–display);font-size:15px;font-weight:700}
 .modal-x{background:none;border:none;color:var(–muted);font-size:20px;cursor:pointer;line-height:1}
-.m-select{width:100%;padding:9px 12px;background:var(–card2);border:1px solid var(–border2);
-border-radius:5px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;margin-bottom:16px;cursor:pointer}
+.m-select{width:100%;padding:9px 12px;background:var(–card2);border:1px solid var(–border);
+border-radius:5px;color:var(–text);font-family:var(–mono);font-size:11px;outline:none;margin-bottom:14px;cursor:pointer}
+.share-tabs{display:flex;gap:6px;margin-bottom:14px}
+.share-tab{flex:1;padding:7px;border-radius:5px;font-size:9px;letter-spacing:1px;
+cursor:pointer;font-family:var(–mono);border:1px solid var(–border);background:transparent;color:var(–muted);transition:all .2s}
+.share-tab.active{border-color:var(–safe);color:var(–safe);background:rgba(0,229,160,.08)}
 
-/* SHARE CARD */
-.share-card{background:linear-gradient(135deg,#0c0c10,#160814);
-border:1px solid rgba(255,59,92,.25);border-radius:10px;padding:22px;margin-bottom:12px}
-.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.sc-logo{font-family:var(–display);font-size:15px;font-weight:800}
-.sc-logo em{font-style:normal;color:#ff3b5c}
-.sc-main{margin-bottom:18px}
-.sc-pair{font-family:var(–display);font-size:22px;font-weight:800;margin-bottom:2px}
-.sc-proto{font-size:9px;letter-spacing:2px;color:var(–muted);margin-bottom:14px}
-.sc-hf{font-size:52px;font-family:var(–display);font-weight:800;line-height:1;margin-bottom:3px}
-.sc-hfl{font-size:8px;letter-spacing:3px;color:var(–muted)}
-.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-.sc-s-l{font-size:8px;letter-spacing:1px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
-.sc-s-v{font-size:12px;font-weight:600}
-.sc-foot{margin-top:16px;padding-top:12px;border-top:1px solid var(–border);
-font-size:8px;letter-spacing:1px;color:var(–muted)}
+/* PORTFOLIO CARD */
+.pf-card{background:linear-gradient(135deg,#0a0a10,#130813);
+border:1px solid rgba(255,59,92,.2);border-radius:10px;padding:18px;margin-bottom:10px}
+.pf-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.pf-logo{font-family:var(–display);font-size:13px;font-weight:800}
+.pf-logo em{font-style:normal;color:#ff3b5c}
+.pf-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.pf-stat-l{font-size:7px;letter-spacing:1px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
+.pf-stat-v{font-size:15px;font-weight:700;font-family:var(–display)}
+.pf-rows{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.pf-row{display:flex;justify-content:space-between;align-items:center;
+padding:7px 9px;border-radius:4px;background:rgba(255,255,255,.03);border-left:2px solid}
+.pf-row.safe{border-left-color:var(–safe)}.pf-row.warn{border-left-color:var(–warn)}
+.pf-row.danger{border-left-color:#ff3b5c}.pf-row.dead{border-left-color:var(–muted)}
+.pf-row-name{font-size:10px;font-weight:600}
+.pf-row-pair{font-size:8px;color:var(–muted);margin-top:1px}
+.pf-row-hf{font-size:13px;font-weight:700;font-family:var(–display)}
+.pf-foot{font-size:8px;letter-spacing:1px;color:var(–muted);border-top:1px solid var(–border);
+padding-top:10px;display:flex;justify-content:space-between}
 .copy-btn{width:100%;padding:10px;border-radius:5px;
 background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.25);
-color:var(–safe);font-size:9px;letter-spacing:2px;cursor:pointer;font-family:var(–mono)}
+color:var(–safe);font-size:9px;letter-spacing:2px;cursor:pointer;font-family:var(–mono);transition:all .2s}
 .copy-btn:hover{background:rgba(0,229,160,.15)}
+
+/* SINGLE SHARE CARD */
+.share-card{background:linear-gradient(135deg,#0a0a10,#130813);
+border:1px solid rgba(255,59,92,.2);border-radius:10px;padding:18px;margin-bottom:10px}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sc-logo{font-family:var(–display);font-size:13px;font-weight:800}
+.sc-logo em{font-style:normal;color:#ff3b5c}
+.sc-pair{font-family:var(–display);font-size:20px;font-weight:800;margin-bottom:2px}
+.sc-proto{font-size:8px;letter-spacing:2px;color:var(–muted);margin-bottom:12px}
+.sc-hf{font-size:44px;font-family:var(–display);font-weight:800;line-height:1;margin-bottom:2px}
+.sc-hfl{font-size:8px;letter-spacing:3px;color:var(–muted)}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.sc-s-l{font-size:7px;letter-spacing:1px;color:var(–muted);text-transform:uppercase;margin-bottom:2px}
+.sc-s-v{font-size:12px;font-weight:600}
+.sc-foot{margin-top:14px;padding-top:10px;border-top:1px solid var(–border);
+font-size:8px;letter-spacing:1px;color:var(–muted);display:flex;justify-content:space-between}
 
 /* TOAST */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);
-background:rgba(20,20,32,0.98);
-border:1px solid rgba(255,255,255,0.1);
-padding:10px 22px;border-radius:20px;font-size:10px;letter-spacing:1px;opacity:0;
-transition:all .3s cubic-bezier(0.4,0,0.2,1);pointer-events:none;z-index:400;white-space:nowrap;
-box-shadow:0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)}
+background:rgba(18,18,28,.98);border:1px solid rgba(255,255,255,.1);
+padding:10px 20px;border-radius:20px;font-size:10px;letter-spacing:1px;opacity:0;
+transition:all .3s;pointer-events:none;z-index:400;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ── SPARKLINE ── */
-.sparkline-wrap{margin-top:10px;margin-bottom:2px}
-.sparkline-label{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
-.sparkline-svg{width:100%;height:36px;display:block}
-
-/* ── PORTFOLIO CARD ── */
-.portfolio-card{
-background:linear-gradient(135deg,#0a0a10,#130813);
-border:1px solid rgba(255,59,92,0.2);border-radius:12px;
-padding:20px;font-family:var(–mono);
-}
-.pf-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.pf-logo{display:flex;align-items:center;gap:8px}
-.pf-logo img{width:28px;height:28px;border-radius:6px;object-fit:contain}
-.pf-logo-text{font-family:var(–display);font-size:13px;font-weight:800}
-.pf-logo-text em{font-style:normal;color:#ff3b5c}
-.pf-date{font-size:8px;color:var(–muted);letter-spacing:1px}
-.pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.pf-stat-l{font-size:7px;letter-spacing:1px;color:var(–muted);text-transform:uppercase;margin-bottom:3px}
-.pf-stat-v{font-size:14px;font-weight:700;font-family:var(–display)}
-.pf-positions{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.pf-pos-row{display:flex;justify-content:space-between;align-items:center;
-padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:5px;
-border-left:2px solid transparent}
-.pf-pos-row.safe{border-left-color:var(–safe)}
-.pf-pos-row.warn{border-left-color:var(–warn)}
-.pf-pos-row.danger{border-left-color:#ff3b5c}
-.pf-pos-row.dead{border-left-color:var(–muted)}
-.pf-pos-name{font-size:10px;font-weight:600}
-.pf-pos-pair{font-size:8px;color:var(–muted);margin-top:1px}
-.pf-pos-hf{font-size:13px;font-weight:700;font-family:var(–display)}
-.pf-footer{font-size:8px;letter-spacing:1px;color:var(–muted);
-border-top:1px solid var(–border);padding-top:10px;
-display:flex;justify-content:space-between}
-
-/* ── PROTO BADGE in card ── */
-.proto-logo{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;
-justify-content:center;font-family:var(–display);font-size:11px;font-weight:800;flex-shrink:0}
-
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(–border2);border-radius:2px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
 </style>
 
 </head>
 <body>
 
-<!-- HEADER -->
-
 <header>
   <div class="logo">
-    <div id="logoWrap" style="width:40px;height:40px;flex-shrink:0">
-      <img src="https://raw.githubusercontent.com/BamBambott/pythrisk/main/logo.jpeg.png"
-        alt="PythRisk" id="logoImg"
-        style="width:40px;height:40px;border-radius:8px;object-fit:contain;display:block">
-    </div>
+    <img src="https://raw.githubusercontent.com/BamBambott/pythrisk/main/logo.jpeg.png" alt="PythRisk"
+      onerror="this.style.display='none'">
     <div>
       <div class="logo-text">Pyth<span>Risk</span></div>
       <div class="logo-sub">DeFi Liquidation Monitor</div>
     </div>
   </div>
-  <div class="live-pill"><div class="dot" id="liveDot"></div><span id="liveText">CONNECTING</span></div>
+  <div class="live-pill"><div class="dot" id="dot"></div><span id="liveText">CONNECTING</span></div>
 </header>
-
-<!-- HERO -->
 
 <div class="hero">
   <div class="hero-tag">Real-Time Risk Intelligence</div>
   <h1>Monitor Your DeFi Positions<br>Before They Get <em>Liquidated</em></h1>
   <p>Enter your collateral and debt. PythRisk calculates your health factor live using Pyth Network oracle prices — and shows exactly when you'll get liquidated.</p>
-  <div class="hero-kpis">
-    <div class="kpi"><div class="kpi-n" id="kpiPos">—</div><div class="kpi-l">Positions</div></div>
-    <div class="kpi"><div class="kpi-n" id="kpiRisk" style="color:var(--warn)">—</div><div class="kpi-l">At Risk</div></div>
-    <div class="kpi"><div class="kpi-n" id="kpiDanger" style="color:#ff3b5c">—</div><div class="kpi-l">Danger</div></div>
-    <div class="kpi"><div class="kpi-n" id="kpiTVL" style="color:var(--safe)">—</div><div class="kpi-l">Total Collateral</div></div>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-n" id="kPos">—</div><div class="kpi-l">Positions</div></div>
+    <div class="kpi"><div class="kpi-n" id="kRisk" style="color:var(--warn)">—</div><div class="kpi-l">At Risk</div></div>
+    <div class="kpi"><div class="kpi-n" id="kDanger" style="color:#ff3b5c">—</div><div class="kpi-l">Danger</div></div>
+    <div class="kpi"><div class="kpi-n" id="kTVL" style="color:var(--safe)">—</div><div class="kpi-l">Collateral</div></div>
   </div>
 </div>
 
-<!-- TOOLBAR -->
-
 <div class="toolbar">
-  <button class="tb-btn tb-add" onclick="scrollToForm()">+ ADD POSITION</button>
-  <button class="tb-btn tb-slider" id="btnSlider" onclick="togglePanel('slider')">📊 PRICE SLIDER</button>
-  <button class="tb-btn tb-whatif" id="btnWhatif" onclick="togglePanel('whatif')">🔮 WHAT IF?</button>
-  <div class="tb-spacer"></div>
-  <button class="tb-btn tb-share" onclick="openShare()">↗ SHARE</button>
-  <button class="tb-btn tb-alert" id="btnAlert" onclick="toggleAlerts()">🔔 ALERTS OFF</button>
+  <button class="btn btn-red" onclick="scrollForm()">+ ADD POSITION</button>
+  <button class="btn btn-dim" id="btnSlider" onclick="togglePanel('slider')">📊 PRICE SLIDER</button>
+  <button class="btn btn-dim" id="btnWhatif" onclick="togglePanel('whatif')">🔮 WHAT IF?</button>
+  <button class="btn btn-dim" onclick="openShare()">↗ SHARE</button>
+  <button class="btn btn-dim" id="btnAlert" onclick="toggleAlerts()">🔔 ALERTS OFF</button>
 </div>
 
 <!-- PRICE SLIDER PANEL -->
 
 <div class="panel" id="panel-slider">
-  <div class="panel-title">PRICE SIMULATOR
-    <button class="panel-close" onclick="resetSliders()">↺ RESET TO LIVE</button>
+  <div class="panel-head">PRICE SIMULATOR
+    <button class="panel-close" onclick="resetSliders()">↺ RESET</button>
   </div>
   <div id="sliderItems"></div>
-  <div style="font-size:9px;color:var(--muted);margin-top:4px">Drag to simulate any price — positions update in real time</div>
+  <div style="font-size:9px;color:var(--muted);margin-top:4px">Drag to simulate — positions update live</div>
 </div>
 
 <!-- WHAT IF PANEL -->
 
 <div class="panel" id="panel-whatif">
-  <div class="panel-title">WHAT IF BUILDER
-    <button class="panel-close" onclick="togglePanel('whatif')">✕ CLOSE</button>
+  <div class="panel-head">WHAT IF BUILDER
+    <button class="panel-close" onclick="togglePanel('whatif')">✕</button>
   </div>
-  <select class="wi-pos-select" id="wiSel" onchange="updateWiUI()">
-    <option value="">— select a position to analyze —</option>
+  <select class="wi-select" id="wiSel" onchange="updateWi()">
+    <option value="">— select a position —</option>
   </select>
   <div id="wiBody" style="display:none">
     <div class="wi-grid">
       <div class="wi-card">
         <div class="wi-label">Add Collateral ($)</div>
         <div class="wi-row">
-          <input class="wi-input" id="wiColl" type="number" placeholder="e.g. 5000" min="0">
-          <button class="wi-calc" onclick="runWhatIf('coll')">CALC</button>
+          <input class="wi-input" id="wiColl" type="number" placeholder="e.g. 5000">
+          <button class="wi-calc" onclick="runWi('coll')">CALC</button>
         </div>
       </div>
       <div class="wi-card">
         <div class="wi-label">Repay Debt ($)</div>
         <div class="wi-row">
-          <input class="wi-input" id="wiDebt" type="number" placeholder="e.g. 2000" min="0">
-          <button class="wi-calc" onclick="runWhatIf('debt')">CALC</button>
+          <input class="wi-input" id="wiDebt" type="number" placeholder="e.g. 2000">
+          <button class="wi-calc" onclick="runWi('debt')">CALC</button>
         </div>
       </div>
       <div class="wi-card">
         <div class="wi-label">Borrow More ($)</div>
         <div class="wi-row">
-          <input class="wi-input" id="wiBorrow" type="number" placeholder="e.g. 1000" min="0">
-          <button class="wi-calc" onclick="runWhatIf('borrow')">CALC</button>
+          <input class="wi-input" id="wiBorrow" type="number" placeholder="e.g. 1000">
+          <button class="wi-calc" onclick="runWi('borrow')">CALC</button>
         </div>
       </div>
     </div>
@@ -482,108 +351,92 @@ justify-content:center;font-family:var(–display);font-size:11px;font-weight:80
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
-
-<div class="content">
-
+<div class="main">
   <!-- POSITIONS -->
-
   <div class="pos-pane">
-    <div class="pos-pane-head">Your Positions</div>
-    <div id="posList">
-      <div class="empty">
-        <div class="empty-icon">⬡</div>
-        <h3>No positions yet</h3>
-        <p>Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</p>
-        <div class="empty-cta" onclick="scrollToForm()">+ ADD YOUR FIRST POSITION</div>
-      </div>
-    </div>
+    <div class="pos-head">Your Positions</div>
+    <div id="posList"></div>
   </div>
 
   <!-- SIDEBAR -->
 
   <div class="sidebar">
+    <div class="form-block" id="addForm">
+      <div class="form-head">Add Position</div>
+      <div class="f-group">
+        <label class="f-label">Protocol</label>
+        <select class="f-select" id="fProto" onchange="autoFill()">
+          <option value="Aave">Aave v3</option>
+          <option value="Compound">Compound v3</option>
+          <option value="MakerDAO">MakerDAO</option>
+          <option value="Venus">Venus</option>
+          <option value="Custom">Custom</option>
+        </select>
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <label class="f-label">Collateral</label>
+          <select class="f-select" id="fColl" onchange="autoFill()">
+            <option value="ETH">ETH</option>
+            <option value="BTC">BTC</option>
+            <option value="SOL">SOL</option>
+            <option value="BNB">BNB</option>
+            <option value="AVAX">AVAX</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label class="f-label">Amount</label>
+          <input class="f-input" id="fCollAmt" type="number" placeholder="e.g. 2.5" inputmode="decimal">
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <label class="f-label">Debt Asset</label>
+          <select class="f-select" id="fDebt">
+            <option value="USDC">USDC</option>
+            <option value="USDT">USDT</option>
+            <option value="ETH">ETH</option>
+            <option value="BTC">BTC</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label class="f-label">Debt Amount</label>
+          <input class="f-input" id="fDebtAmt" type="number" placeholder="e.g. 3000" inputmode="decimal">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Liquidation Threshold</label>
+        <select class="f-select" id="fThresh">
+          <option value="0.85">85% — Aave ETH</option>
+          <option value="0.80">80% — Aave BTC</option>
+          <option value="0.75">75% — Conservative</option>
+          <option value="0.70">70% — Compound</option>
+          <option value="0.65">65% — Aggressive</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Alert me when HF drops below &nbsp;<span id="alertVal" style="color:var(--warn);font-size:12px">1.5</span></label>
+        <input type="range" id="fAlert" min="1.0" max="3.0" step="0.1" value="1.5"
+          oninput="document.getElementById('alertVal').textContent=parseFloat(this.value).toFixed(1)">
+      </div>
+      <button class="calc-btn" onclick="addPos()">CALCULATE RISK →</button>
+    </div>
 
 ```
-<!-- ADD FORM -->
-<div class="form-block" id="addForm">
-  <div class="form-head">Add Position</div>
-  <div class="f-group">
-    <label class="f-label">Protocol</label>
-    <select class="f-select" id="fProto" onchange="autoFillProtocol()">
-      <option value="Aave">Aave v3</option>
-      <option value="Compound">Compound v3</option>
-      <option value="MakerDAO">MakerDAO</option>
-      <option value="Venus">Venus</option>
-      <option value="Custom">Custom</option>
-    </select>
-  </div>
-  <div class="f-row">
-    <div class="f-group">
-      <label class="f-label">Collateral</label>
-      <select class="f-select" id="fCollAsset" onchange="autoFillProtocol()">
-        <option value="ETH">ETH</option>
-        <option value="BTC">BTC</option>
-        <option value="SOL">SOL</option>
-        <option value="BNB">BNB</option>
-        <option value="AVAX">AVAX</option>
-      </select>
-    </div>
-    <div class="f-group">
-      <label class="f-label">Amount</label>
-      <input class="f-input" id="fCollAmt" type="number" placeholder="e.g. 2.5" step="any" min="0" inputmode="decimal" onkeydown="if(event.key==='Enter')addPos()">
-    </div>
-  </div>
-  <div class="f-row">
-    <div class="f-group">
-      <label class="f-label">Debt Asset</label>
-      <select class="f-select" id="fDebtAsset">
-        <option value="USDC">USDC</option>
-        <option value="USDT">USDT</option>
-        <option value="ETH">ETH</option>
-        <option value="BTC">BTC</option>
-      </select>
-    </div>
-    <div class="f-group">
-      <label class="f-label">Debt Amount</label>
-      <input class="f-input" id="fDebtAmt" type="number" placeholder="e.g. 3000" step="any" min="0" inputmode="decimal" onkeydown="if(event.key==='Enter')addPos()">
-    </div>
-  </div>
-  <div class="f-group">
-    <label class="f-label">Liquidation Threshold</label>
-    <select class="f-select" id="fThresh">
-      <option value="0.85">85% — Aave ETH</option>
-      <option value="0.80">80% — Aave BTC</option>
-      <option value="0.75">75% — Conservative</option>
-      <option value="0.70">70% — Compound</option>
-      <option value="0.65">65% — Aggressive</option>
-    </select>
-  </div>
-  <div class="f-group" style="margin-top:4px">
-    <label class="f-label">Alert me when HF drops below</label>
-    <div style="display:flex;align-items:center;gap:10px">
-      <input type="range" id="fAlertThresh" min="1.0" max="3.0" step="0.1" value="1.5"
-        style="flex:1" oninput="document.getElementById('fAlertVal').textContent=parseFloat(this.value).toFixed(1)">
-      <span id="fAlertVal" style="font-size:13px;font-weight:600;color:var(--warn);min-width:28px">1.5</span>
-    </div>
-    <div style="font-size:8px;color:var(--muted);margin-top:3px;letter-spacing:1px">Browser notification fires at this threshold</div>
-  </div>
-  <button class="calc-btn" onclick="addPos()" type="button">CALCULATE RISK →</button>
-</div>
-
-<!-- LIVE PRICES -->
 <div class="ticker-block">
-  <div class="block-head" style="display:flex;justify-content:space-between;align-items:center"><span>Live Pyth Prices</span><span style="font-size:7px;color:rgba(0,229,160,0.6);letter-spacing:1px">● PYTH HERMES</span></div>
-  <div id="ticker"><div style="color:var(--muted);font-size:10px">Loading...</div></div>
+  <div class="block-head">
+    <span>Live Pyth Prices</span>
+    <span style="color:rgba(0,229,160,.6);font-size:7px;letter-spacing:1px">● HERMES</span>
+  </div>
+  <div id="ticker"><div style="color:var(--muted);font-size:10px;padding:4px">Loading...</div></div>
 </div>
 
-<!-- STRESS TEST -->
 <div class="stress-block">
   <div class="block-head">Stress Test</div>
   <button class="st-btn" onclick="stressTest(-10)">📉 Simulate −10% crash</button>
   <button class="st-btn" onclick="stressTest(-25)">📉 Simulate −25% crash</button>
   <button class="st-btn" onclick="stressTest(-50)">☠️ Simulate −50% crash</button>
-  <button class="st-btn reset" onclick="stressTest(0)">🔄 Reset to live prices</button>
+  <button class="st-btn reset-btn" onclick="stressTest(0)">🔄 Reset to live prices</button>
   <div class="st-result" id="stResult"></div>
 </div>
 ```
@@ -599,18 +452,16 @@ justify-content:center;font-family:var(–display);font-size:11px;font-weight:80
       <div class="modal-title">Share</div>
       <button class="modal-x" onclick="closeShare()">✕</button>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="tb-btn tb-share" style="flex:1;justify-content:center" id="tabPortfolio" onclick="switchShareTab('portfolio')">📊 PORTFOLIO</button>
-      <button class="tb-btn" style="flex:1;justify-content:center;border-color:var(--border2);color:var(--muted)" id="tabSingle" onclick="switchShareTab('single')">📌 SINGLE</button>
+    <div class="share-tabs">
+      <button class="share-tab active" id="tabPF" onclick="switchTab('pf')">📊 PORTFOLIO</button>
+      <button class="share-tab" id="tabSingle" onclick="switchTab('single')">📌 SINGLE</button>
     </div>
-    <div id="portfolioTab">
-      <div id="shareCardWrap"></div>
-    </div>
+    <div id="pfTab"></div>
     <div id="singleTab" style="display:none">
-      <select class="m-select" id="shareSel" onchange="renderShareCard()">
+      <select class="m-select" id="shareSel" onchange="renderSingle()">
         <option value="">— select position —</option>
       </select>
-      <div id="singleCardWrap"></div>
+      <div id="singleWrap"></div>
     </div>
   </div>
 </div>
@@ -618,24 +469,8 @@ justify-content:center;font-family:var(–display);font-size:11px;font-weight:80
 <div class="toast" id="toast"></div>
 
 <script>
-// Logo fallback
-document.addEventListener('DOMContentLoaded', function() {
-  var img = document.getElementById('logoImg');
-  if (img) {
-    img.onerror = function() {
-      document.getElementById('logoWrap').innerHTML = '<div class="logo-hex">PR</div>';
-    };
-  }
-});
-
-// ═══════════ STATE ═══════════
-var prices={}, prevPrices={}, d24h={};
-var positions=[], posId=0;
-var stress=1.0, sliderPrices={};
-var alertsOn=false, alerted={};
-var demoLoaded=false;
-
-var FEEDS={
+// ═══ DATA ═══
+var FEEDS = {
   BTC:'0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
   ETH:'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
   SOL:'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
@@ -645,16 +480,14 @@ var FEEDS={
   USDT:'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
   LINK:'0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
   SUI:'0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744',
-  DOT:'0x6489800bb8974169adfe35937bf6736507097d13c190d760c557108c7e93a81b',
-  LTC:'0xca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b',
   XRP:'0xec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8',
+  LTC:'0xca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b',
+  DOT:'0x6489800bb8974169adfe35937bf6736507097d13c190d760c557108c7e93a81b',
   ATOM:'0xb00b60f88b03a6a625a8d1c048c3f66653edf217439983d037e7222c4e612819',
   XAU:'0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2',
   XAG:'0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e',
 };
-
-// Token logos from CoinGecko CDN
-var TOKEN_LOGOS={
+var LOGOS = {
   BTC:'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
   ETH:'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
   SOL:'https://assets.coingecko.com/coins/images/4128/small/solana.png',
@@ -664,294 +497,247 @@ var TOKEN_LOGOS={
   USDT:'https://assets.coingecko.com/coins/images/325/small/Tether.png',
   LINK:'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png',
   SUI:'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg',
-  DOT:'https://assets.coingecko.com/coins/images/12171/small/polkadot.png',
-  LTC:'https://assets.coingecko.com/coins/images/2/small/litecoin.png',
   XRP:'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
+  LTC:'https://assets.coingecko.com/coins/images/2/small/litecoin.png',
+  DOT:'https://assets.coingecko.com/coins/images/12171/small/polkadot.png',
   ATOM:'https://assets.coingecko.com/coins/images/1481/small/cosmos_hub.png',
   XAU:'https://assets.coingecko.com/coins/images/14549/small/gold.png',
   XAG:'https://assets.coingecko.com/coins/images/14950/small/silver.png',
 };
-
-// Token colors for fallback
-var TOKEN_COLORS={
-  BTC:'#F7931A',ETH:'#627EEA',SOL:'#9945FF',BNB:'#F3BA2F',
-  AVAX:'#E84142',USDC:'#2775CA',USDT:'#26A17B',LINK:'#2A5ADA',
-  SUI:'#4DA2FF',DOT:'#E6007A',LTC:'#BFBBBB',XRP:'#00AAE4',
-  ATOM:'#6F7390',XAU:'#FFD700',XAG:'#C0C0C0',
+var COLORS = {
+  BTC:'#F7931A',ETH:'#627EEA',SOL:'#9945FF',BNB:'#F3BA2F',AVAX:'#E84142',
+  USDC:'#2775CA',USDT:'#26A17B',LINK:'#2A5ADA',SUI:'#4DA2FF',XRP:'#00AAE4',
+  LTC:'#BFBBBB',DOT:'#E6007A',ATOM:'#6F7390',XAU:'#FFD700',XAG:'#C0C0C0',
 };
-var PROTO_COLORS={Aave:'#B6509E',Compound:'#00D395',MakerDAO:'#F5AC37',Venus:'#F0B90B',Custom:'#4f8fff'};
-
-function getP(sym){return sliderPrices[sym]!==undefined?sliderPrices[sym]:(prices[sym]||0)}
-
-// ═══════════ FETCH ═══════════
-// Only fetch confirmed working IDs
-var VERIFIED_FEEDS={
-  BTC:'0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
-  ETH:'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
-  SOL:'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
-  BNB:'0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f',
-  AVAX:'0x93da3352f9f1d105fdfe4971cfa80e9dd777bfc5d0f683ebb6e1294b92137bb7',
-  USDC:'0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
-  USDT:'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
-  LINK:'0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
-  SUI:'0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744',
-  XRP:'0xec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8',
-  LTC:'0xca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b',
-  DOT:'0x6489800bb8974169adfe35937bf6736507097d13c190d760c557108c7e93a81b',
-  ATOM:'0xb00b60f88b03a6a625a8d1c048c3f66653edf217439983d037e7222c4e612819',
-  XAU:'0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2',
-  XAG:'0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e',
+var PROTO_THRESH = {
+  Aave:{ETH:0.85,BTC:0.80,SOL:0.75,BNB:0.75,AVAX:0.70,default:0.80},
+  Compound:{ETH:0.83,BTC:0.80,default:0.75},
+  MakerDAO:{ETH:0.77,BTC:0.75,default:0.70},
+  Venus:{ETH:0.80,BTC:0.80,default:0.75},
+  Custom:{default:0.75},
 };
+var PROTO_COLORS = {Aave:'#B6509E',Compound:'#00D395',MakerDAO:'#F5AC37',Venus:'#F0B90B',Custom:'#4f8fff'};
 
+var prices={}, prevPrices={}, d24h={};
+var positions=[], posId=0;
+var stress=1.0, sliderPrices={};
+var alertsOn=false, alerted={};
+var posHistory={};
+
+function getP(sym){ return sliderPrices[sym]!==undefined ? sliderPrices[sym] : (prices[sym]||0); }
+
+// ═══ FETCH — direct Hermes, no proxy needed ═══
 async function fetchPrices(){
-  var ids=Object.values(VERIFIED_FEEDS);
-  var params=ids.map(function(i){return'ids[]='+i}).join('&');
-  var sources=[
-    '/api/prices',
-    'https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true',
-    'https://corsproxy.io/?'+encodeURIComponent('https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true')
-  ];
-  for(var i=0;i<sources.length;i++){
-    try{
-      var r=await fetch(sources[i],{signal:AbortSignal.timeout(6000)});
-      if(!r.ok) continue;
-      var d=await r.json();
-      var parsed=d.parsed||(d.success&&d.parsed);
-      if(!parsed||!parsed.length) continue;
-      prevPrices=Object.assign({},prices);
-      var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
-      parsed.forEach(function(item){
-        var id='0x'+item.id,sym=syms[vals.indexOf(id)];
-        if(sym) prices[sym]=item.price.price*Math.pow(10,item.price.expo);
-      });
-      document.getElementById('liveText').textContent='PYTH LIVE';
-      document.getElementById('liveDot').style.background='var(--safe)';
-      updateTicker();renderAll();checkAlerts();
-      if(document.getElementById('panel-slider').classList.contains('show')) buildSliders();
-      return;
-    }catch(e){continue;}
+  var ids=Object.values(FEEDS);
+  var params=ids.map(function(i){return'ids[]='+i;}).join('&');
+  var url='https://hermes.pyth.network/v2/updates/price/latest?'+params+'&parsed=true';
+  try{
+    var r=await fetch(url,{signal:AbortSignal.timeout(7000)});
+    if(!r.ok) throw new Error(r.status);
+    var d=await r.json();
+    if(!d.parsed||!d.parsed.length) throw new Error('empty');
+    prevPrices=Object.assign({},prices);
+    var syms=Object.keys(FEEDS), vals=Object.values(FEEDS);
+    d.parsed.forEach(function(item){
+      var id='0x'+item.id, sym=syms[vals.indexOf(id)];
+      if(sym) prices[sym]=item.price.price*Math.pow(10,item.price.expo);
+    });
+    document.getElementById('liveText').textContent='PYTH LIVE';
+    document.getElementById('dot').style.background='var(--safe)';
+    updateTicker(); renderAll(); checkAlerts();
+    if(document.getElementById('panel-slider').classList.contains('show')) buildSliders();
+  }catch(e){
+    document.getElementById('liveText').textContent='RECONNECTING';
+    document.getElementById('dot').style.background='var(--warn)';
   }
-  document.getElementById('liveText').textContent='RECONNECTING';
-  document.getElementById('liveDot').style.background='var(--warn)';
 }
 
 async function fetch24h(){
   var ts=Math.floor(Date.now()/1000)-86400;
+  var ids=Object.values(FEEDS);
+  var params=ids.map(function(i){return'ids[]='+i;}).join('&');
   try{
-    var r=await fetch('/api/prices?ts='+ts,{signal:AbortSignal.timeout(8000)});
-    if(!r.ok) throw new Error();
+    var r=await fetch('https://hermes.pyth.network/v2/updates/price/'+ts+'?'+params+'&parsed=true',{signal:AbortSignal.timeout(8000)});
+    if(!r.ok) return;
     var d=await r.json();
-    if(!d.parsed) return;
-    var syms=Object.keys(FEEDS),vals=Object.values(FEEDS);
-    d.parsed.forEach(function(item){
-      var id='0x'+item.id,sym=syms[vals.indexOf(id)];
+    var syms=Object.keys(FEEDS), vals=Object.values(FEEDS);
+    if(d.parsed) d.parsed.forEach(function(item){
+      var id='0x'+item.id, sym=syms[vals.indexOf(id)];
       if(sym) d24h[sym]=item.price.price*Math.pow(10,item.price.expo);
     });
     renderAll();
   }catch(e){}
 }
 
-// ═══════════ DEMO ═══════════
+// ═══ DEMO ═══
 function loadDemo(){
   positions=[
-    {id:++posId,proto:'Aave',coll:'ETH',collAmt:5,debt:'USDC',debtAmt:7000,thresh:0.85},
-    {id:++posId,proto:'Compound',coll:'BTC',collAmt:0.15,debt:'USDC',debtAmt:8000,thresh:0.80},
-    {id:++posId,proto:'MakerDAO',coll:'ETH',collAmt:2,debt:'USDC',debtAmt:4500,thresh:0.75},
+    {id:++posId,proto:'Aave',coll:'ETH',collAmt:5,debt:'USDC',debtAmt:7000,thresh:0.85,alert:1.5},
+    {id:++posId,proto:'Compound',coll:'BTC',collAmt:0.15,debt:'USDC',debtAmt:8000,thresh:0.80,alert:1.5},
+    {id:++posId,proto:'MakerDAO',coll:'ETH',collAmt:2,debt:'USDC',debtAmt:4500,thresh:0.75,alert:1.5},
   ];
   renderAll();
 }
 
-// ═══════════ CALC ═══════════
+// ═══ CALC ═══
 function calcHF(pos){
   var cp=getP(pos.coll)*stress;
   var dp=(pos.debt==='USDC'||pos.debt==='USDT')?1.0:getP(pos.debt)*stress;
   var cUSD=pos.collAmt*cp, dUSD=pos.debtAmt*dp;
-  if(dUSD===0) return{hf:999,cUSD,dUSD,liqP:0,drop:100};
+  if(!dUSD) return{hf:999,cUSD,dUSD,liqP:0,drop:100,ltv:0};
   var hf=(cUSD*pos.thresh)/dUSD;
   var liqP=dUSD/(pos.collAmt*pos.thresh);
   var drop=cp>0?((cp-liqP)/cp*100):0;
-  return{hf,cUSD,dUSD,liqP,drop};
+  var ltv=cUSD>0?dUSD/cUSD*100:0;
+  return{hf,cUSD,dUSD,liqP,drop,ltv};
 }
+function st(hf){return hf>=2?'safe':hf>=1.3?'warn':hf>1?'danger':'dead';}
+function sl(hf){return hf>=2?'SAFE':hf>=1.3?'WARNING':hf>1?'DANGER':'LIQUIDATED';}
+function sc(s){return{safe:'var(--safe)',warn:'var(--warn)',danger:'#ff3b5c',dead:'var(--muted)'}[s];}
 
-function status(hf){return hf>=2?'safe':hf>=1.3?'warn':hf>1?'danger':'dead'}
-function statusLabel(hf){return hf>=2?'SAFE':hf>=1.3?'WARNING':hf>1?'DANGER':'LIQUIDATED'}
-function statusColor(s){return{safe:'var(--safe)',warn:'var(--warn)',danger:'#ff3b5c',dead:'var(--muted)'}[s]}
-
-// ═══════════ RENDER ═══════════
+// ═══ RENDER ═══
 function renderAll(){
-  var list=document.getElementById('posList');
-  if(!positions.length){
-    list.innerHTML='<div class="empty"><div class="empty-icon">⬡</div><h3>No positions yet</h3><p>Add your DeFi positions to monitor liquidation risk in real time using Pyth price feeds</p><div class="empty-cta" onclick="scrollToForm()">+ ADD YOUR FIRST POSITION</div></div>';
-    updateKPIs();return;
-  }
+  recordHist();
   var html='';
+  if(!positions.length){
+    document.getElementById('posList').innerHTML='<div class="empty"><div class="empty-icon">⬡</div><h3>No positions yet</h3><p>Add your DeFi positions to monitor liquidation risk in real time</p><div class="empty-cta" onclick="scrollForm()">+ ADD FIRST POSITION</div></div>';
+    updateKPIs(); return;
+  }
   positions.forEach(function(pos){
-    var c=calcHF(pos),s=status(c.hf),col=statusColor(s);
-    var pct=Math.min(100,Math.max(0,(c.hf/3)*100));
+    var c=calcHF(pos), s=st(c.hf), col=sc(s), pct=Math.min(100,Math.max(0,(c.hf/3)*100));
+    var hfStr=c.hf===999?'∞':c.hf.toFixed(3);
     var pc=getP(pos.coll)*stress;
     var pcStr=pc?'$'+pc.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
-    var hfStr=c.hf===999?'∞':c.hf.toFixed(3);
-    var ltv=c.cUSD>0?(c.dUSD/c.cUSD*100).toFixed(1)+'%':'—';
-    var proto_c=PROTO_COLORS[pos.proto]||'#4f8fff';
-
-    // 24h change for coll asset
-    var chg='';
-    if(d24h[pos.coll]&&prices[pos.coll]){
-      var pct24=(prices[pos.coll]-d24h[pos.coll])/d24h[pos.coll]*100;
-      chg=' <span style="font-size:9px;color:'+(pct24>=0?'var(--safe)':'#ff3b5c')+'">'+(pct24>=0?'▲':'▼')+Math.abs(pct24).toFixed(2)+'%</span>';
+    var prC=PROTO_COLORS[pos.proto]||'#4f8fff';
+    var p24=d24h[pos.coll], chgHtml='';
+    if(p24&&prices[pos.coll]){
+      var chg=(prices[pos.coll]-p24)/p24*100;
+      chgHtml=' <span style="font-size:9px;color:'+(chg>=0?'var(--safe)':'#ff3b5c')+'">'+(chg>=0?'▲':'▼')+Math.abs(chg).toFixed(2)+'%</span>';
     }
-
-    var abClass='ab-'+s;
     var abMsg=s==='safe'?'✓ Healthy. Liquidation at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+' ('+c.drop.toFixed(1)+'% drop needed)'
-      :s==='warn'?'⚠ Approaching risk zone. '+c.drop.toFixed(1)+'% drop triggers liquidation. Consider reducing debt.'
-      :s==='danger'?'🚨 CRITICAL — only '+c.drop.toFixed(1)+'% price drop to liquidation! Act now.'
-      :'☠ LIQUIDATED — health factor ≤ 1.0. This position would be seized by the protocol.';
-
-    html+='<div class="pos-card '+s+'" id="pos-'+pos.id+'">'
-      +'<div class="pc-row1">'
-        +'<div class="pc-left">'
-          +'<div class="pc-icon" style="background:'+proto_c+'22;color:'+proto_c+'">'+pos.proto.slice(0,2).toUpperCase()+'</div>'
+      :s==='warn'?'⚠ Approaching risk. '+c.drop.toFixed(1)+'% price drop triggers liquidation.'
+      :s==='danger'?'🚨 CRITICAL — only '+c.drop.toFixed(1)+'% to liquidation! Act now.'
+      :'☠ LIQUIDATED — health factor ≤ 1.0. Position seized by protocol.';
+    html+='<div class="pos-card '+s+'">'
+      +'<div class="pc-top">'
+        +'<div class="pc-info">'
+          +'<div class="pc-icon" style="background:'+prC+'22;color:'+prC+'">'+pos.proto.slice(0,2).toUpperCase()+'</div>'
           +'<div><div class="pc-name">'+pos.proto+'</div><div class="pc-pair">'+pos.coll+' → '+pos.debt+'</div></div>'
         +'</div>'
-        +'<div class="pc-right">'
-          +'<span class="badge '+s+'">'+statusLabel(c.hf)+'</span>'
-          +'<button class="del-btn" onclick="delPos('+pos.id+')">×</button>'
-        +'</div>'
+        +'<div class="pc-right"><span class="badge '+s+'">'+sl(c.hf)+'</span>'
+          +'<button class="del" onclick="delPos('+pos.id+')">×</button></div>'
       +'</div>'
       +'<div class="hf-wrap">'
-        +'<div class="hf-head"><span class="hf-label">Health Factor</span><span class="hf-val" style="color:'+col+'">'+hfStr+'</span></div>'
+        +'<div class="hf-top"><span class="hf-label">Health Factor</span><span class="hf-val" style="color:'+col+'">'+hfStr+'</span></div>'
         +'<div class="hf-track"><div class="hf-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
       +'</div>'
-      +'<div class="pc-metrics">'
-        +'<div class="pc-m"><div class="pc-m-l">Collateral</div><div class="pc-m-v">$'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
-        +'<div class="pc-m"><div class="pc-m-l">Debt</div><div class="pc-m-v">$'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
-        +'<div class="pc-m"><div class="pc-m-l">LTV</div><div class="pc-m-v">'+ltv+'</div></div>'
-        +'<div class="pc-m"><div class="pc-m-l">'+pos.coll+' Price</div><div class="pc-m-v">'+pcStr+chg+'</div></div>'
-        +'<div class="pc-m"><div class="pc-m-l">Liq. Price</div><div class="pc-m-v" style="color:'+col+'">$'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
-        +'<div class="pc-m"><div class="pc-m-l">Drop to Liq.</div><div class="pc-m-v" style="color:'+col+'">'+c.drop.toFixed(1)+'%</div></div>'
+      +'<div class="metrics">'
+        +'<div class="metric"><div class="metric-l">Collateral</div><div class="metric-v">$'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+        +'<div class="metric"><div class="metric-l">Debt</div><div class="metric-v">$'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+        +'<div class="metric"><div class="metric-l">LTV</div><div class="metric-v">'+c.ltv.toFixed(1)+'%</div></div>'
+        +'<div class="metric"><div class="metric-l">'+pos.coll+' Price</div><div class="metric-v">'+pcStr+chgHtml+'</div></div>'
+        +'<div class="metric"><div class="metric-l">Liq. Price</div><div class="metric-v" style="color:'+col+'">$'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
+        +'<div class="metric"><div class="metric-l">Drop to Liq.</div><div class="metric-v" style="color:'+col+'">'+c.drop.toFixed(1)+'%</div></div>'
       +'</div>'
-      +'<div class="alert-box '+abClass+'">'+abMsg+'</div>'
-      + renderSparkline(pos.id, col)
+      +'<div class="alert-box ab-'+s+'">'+abMsg+'</div>'
+      + renderSpark(pos.id, col)
     +'</div>';
   });
-  list.innerHTML=html;
+  document.getElementById('posList').innerHTML=html;
   updateKPIs();
 }
 
 function updateKPIs(){
   var risk=0,danger=0,tvl=0;
-  positions.forEach(function(p){var c=calcHF(p),s=status(c.hf);if(s==='warn')risk++;if(s==='danger'||s==='dead')danger++;tvl+=c.cUSD;});
-  document.getElementById('kpiPos').textContent=positions.length;
-  document.getElementById('kpiRisk').textContent=risk;
-  document.getElementById('kpiDanger').textContent=danger;
-  document.getElementById('kpiTVL').textContent='$'+tvl.toLocaleString('en-US',{maximumFractionDigits:0});
+  positions.forEach(function(p){var c=calcHF(p),s=st(c.hf);if(s==='warn')risk++;if(s==='danger'||s==='dead')danger++;tvl+=c.cUSD;});
+  document.getElementById('kPos').textContent=positions.length;
+  document.getElementById('kRisk').textContent=risk;
+  document.getElementById('kDanger').textContent=danger;
+  document.getElementById('kTVL').textContent='$'+tvl.toLocaleString('en-US',{maximumFractionDigits:0});
 }
 
-// ═══════════ TICKER ═══════════
-var TICKER_SYMS=['BTC','ETH','SOL','BNB','XRP','AVAX','LINK','SUI','DOT','LTC','ATOM','USDC','USDT','XAU','XAG'];
+// ═══ TICKER ═══
+function tickerIcon(sym){
+  var logo=LOGOS[sym], color=COLORS[sym]||'#6b7280';
+  if(logo) return '<img class="tick-icon" src="'+logo+'" alt="'+sym+'" onerror="this.outerHTML=\'<div class=\\"tick-icon-fb\\" style=\\"background:'+color+'22;color:'+color+'\\">'+sym.slice(0,2)+'</div>\'">';
+  return '<div class="tick-icon-fb" style="background:'+color+'22;color:'+color+'">'+sym.slice(0,2)+'</div>';
+}
 
-function fmtTickerPrice(sym, p){
-  if(sym==='XAU'||sym==='XAG') return '$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(p>=1000) return '$'+p.toLocaleString('en-US',{maximumFractionDigits:2});
+function fmtP(sym,p){
+  if(p>=10000) return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(p>=100) return '$'+p.toLocaleString('en-US',{maximumFractionDigits:2});
   if(p>=1) return '$'+p.toFixed(3);
-  return '$'+p.toFixed(5);
-}
-
-function getTokenIcon(sym){
-  var logo=TOKEN_LOGOS[sym];
-  var color=TOKEN_COLORS[sym]||'#6b7280';
-  if(logo){
-    return '<img class="tick-icon" src="'+logo+'" alt="'+sym+'" onerror="this.outerHTML='<div class=\"tick-icon-fallback\" style=\"background:'+color+'22;color:'+color+'\">'+sym.slice(0,2)+'</div>'">';
-  }
-  return '<div class="tick-icon-fallback" style="background:'+color+'22;color:'+color+'">'+sym.slice(0,2)+'</div>';
+  return '$'+p.toFixed(4);
 }
 
 function updateTicker(){
+  var syms=Object.keys(FEEDS);
   var html='';
-  TICKER_SYMS.forEach(function(sym){
-    var p=prices[sym],prev=prevPrices[sym];
-    var icon=getTokenIcon(sym);
+  syms.forEach(function(sym){
+    var p=prices[sym], prev=prevPrices[sym];
+    var icon=tickerIcon(sym);
     if(!p){
-      html+='<div class="tick-row">'
-        +'<div class="tick-left">'+icon+'<div><div class="tick-name">'+sym+'</div><div class="tick-sym">USD</div></div></div>'
-        +'<div class="tick-right"><span class="tick-p" style="color:var(--muted)">—</span></div>'
-      +'</div>';
+      html+='<div class="tick-row"><div class="tick-left">'+icon+'<div><div class="tick-sym">'+sym+'</div><div class="tick-sub">/USD</div></div></div>'
+        +'<div class="tick-right"><div class="tick-p" style="color:var(--muted)">—</div></div></div>';
       return;
     }
-    var ps=fmtTickerPrice(sym,p);
-    var chg=prev&&prev!==p?((p-prev)/prev*100):0;
-    var chgHtml=chg>0?'<span class="tick-chg up">▲'+Math.abs(chg).toFixed(3)+'%</span>'
-      :chg<0?'<span class="tick-chg dn">▼'+Math.abs(chg).toFixed(3)+'%</span>'
-      :'<span class="tick-chg" style="color:var(--muted)">—</span>';
-    html+='<div class="tick-row">'
-      +'<div class="tick-left">'+icon+'<div><div class="tick-name">'+sym+'</div><div class="tick-sym">/USD</div></div></div>'
-      +'<div class="tick-right"><span class="tick-p">'+ps+'</span>'+chgHtml+'</div>'
-    +'</div>';
+    var ps=fmtP(sym,p);
+    var chg=prev&&prev!==p?(p-prev)/prev*100:0;
+    var chgHtml=chg>0?'<div class="tick-chg up">▲'+Math.abs(chg).toFixed(3)+'%</div>'
+      :chg<0?'<div class="tick-chg dn">▼'+Math.abs(chg).toFixed(3)+'%</div>'
+      :'';
+    html+='<div class="tick-row"><div class="tick-left">'+icon+'<div><div class="tick-sym">'+sym+'</div><div class="tick-sub">/USD</div></div></div>'
+      +'<div class="tick-right"><div class="tick-p">'+ps+'</div>'+chgHtml+'</div></div>';
   });
   document.getElementById('ticker').innerHTML=html;
 }
 
-// ═══════════ ADD/REMOVE ═══════════
+// ═══ ADD/REMOVE ═══
 function addPos(){
-  var collAmtEl=document.getElementById('fCollAmt');
-  var debtAmtEl=document.getElementById('fDebtAmt');
-  var cAmt=parseFloat(collAmtEl.value.trim());
-  var dAmt=parseFloat(debtAmtEl.value.trim());
-
-  if(isNaN(cAmt)||cAmt<=0){
-    collAmtEl.style.borderColor='#ff3b5c';
-    toast('Enter a valid collateral amount (e.g. 2.5)');
-    setTimeout(function(){collAmtEl.style.borderColor='';},2000);
-    return;
-  }
-  if(isNaN(dAmt)||dAmt<=0){
-    debtAmtEl.style.borderColor='#ff3b5c';
-    toast('Enter a valid debt amount (e.g. 3000)');
-    setTimeout(function(){debtAmtEl.style.borderColor='';},2000);
-    return;
-  }
-
-  var newPos={
-    id:++posId,
-    proto:document.getElementById('fProto').value,
-    coll:document.getElementById('fCollAsset').value,
-    collAmt:cAmt,
-    debt:document.getElementById('fDebtAsset').value,
-    debtAmt:dAmt,
+  var cAmt=parseFloat(document.getElementById('fCollAmt').value);
+  var dAmt=parseFloat(document.getElementById('fDebtAmt').value);
+  var cEl=document.getElementById('fCollAmt'), dEl=document.getElementById('fDebtAmt');
+  if(isNaN(cAmt)||cAmt<=0){cEl.style.borderColor='#ff3b5c';toast('Enter collateral amount');setTimeout(function(){cEl.style.borderColor='';},2000);return;}
+  if(isNaN(dAmt)||dAmt<=0){dEl.style.borderColor='#ff3b5c';toast('Enter debt amount');setTimeout(function(){dEl.style.borderColor='';},2000);return;}
+  var pos={id:++posId,proto:document.getElementById('fProto').value,coll:document.getElementById('fColl').value,
+    collAmt:cAmt,debt:document.getElementById('fDebt').value,debtAmt:dAmt,
     thresh:parseFloat(document.getElementById('fThresh').value),
-  };
-  newPos.alertThresh = parseFloat(document.getElementById('fAlertThresh').value) || 1.5;
-  positions.push(newPos);
-  collAmtEl.value='';
-  debtAmtEl.value='';
+    alert:parseFloat(document.getElementById('fAlert').value)||1.5};
+  positions.push(pos);
+  cEl.value=''; dEl.value='';
   renderAll();
-  // Scroll to new position
-  setTimeout(function(){
-    var el=document.getElementById('pos-'+newPos.id);
-    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
-  },100);
-  toast('✓ Position added — monitoring live with Pyth prices');
+  toast('✓ Position added — monitoring live');
 }
 
-function delPos(id){
-  positions=positions.filter(function(p){return p.id!==id;});
-  renderAll();toast('Position removed');
+function delPos(id){positions=positions.filter(function(p){return p.id!==id;});renderAll();toast('Position removed');}
+
+// ═══ PROTOCOL AUTO-FILL ═══
+function autoFill(){
+  var proto=document.getElementById('fProto').value;
+  var coll=document.getElementById('fColl').value;
+  var pd=PROTO_THRESH[proto], data=pd[coll]||pd['default'];
+  var sel=document.getElementById('fThresh');
+  var best=0, bestDiff=999;
+  for(var i=0;i<sel.options.length;i++){
+    var diff=Math.abs(parseFloat(sel.options[i].value)-data);
+    if(diff<bestDiff){bestDiff=diff;best=i;}
+  }
+  sel.selectedIndex=best;
 }
 
-// ═══════════ STRESS TEST ═══════════
+// ═══ STRESS TEST ═══
 function stressTest(pct){
   stress=pct===0?1.0:1+(pct/100);
   var r=document.getElementById('stResult');
   if(pct===0){r.classList.remove('show');renderAll();toast('Reset to live prices');return;}
   var at=0;
-  positions.forEach(function(p){var c=calcHF(p);if(status(c.hf)==='danger'||status(c.hf)==='dead')at++;});
-  r.innerHTML='📉 '+Math.abs(pct)+'% crash simulated across all assets\n'
-    +(positions.length?at+'/'+positions.length+' positions at liquidation risk':'No positions to test yet');
+  positions.forEach(function(p){var c=calcHF(p);if(st(c.hf)==='danger'||st(c.hf)==='dead')at++;});
+  r.textContent='📉 '+Math.abs(pct)+'% crash: '+at+'/'+positions.length+' positions at liquidation risk';
   r.classList.add('show');
-  renderAll();toast('Stress test applied: '+pct+'% crash');
+  renderAll();toast('Stress test: '+pct+'% crash applied');
 }
 
-// ═══════════ PRICE SLIDER ═══════════
+// ═══ PRICE SLIDER ═══
 function togglePanel(id){
   var el=document.getElementById('panel-'+id);
   var isOpen=el.classList.contains('show');
@@ -962,7 +748,7 @@ function togglePanel(id){
     el.classList.add('show');
     document.getElementById('btn'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('on');
     if(id==='slider') buildSliders();
-    if(id==='whatif') populateWiSelect();
+    if(id==='whatif') populateWi();
   }
 }
 
@@ -970,15 +756,15 @@ function buildSliders(){
   var syms=['BTC','ETH','SOL','BNB','AVAX'];
   var html='';
   syms.forEach(function(sym){
-    var live=prices[sym]||0;if(!live)return;
+    var live=prices[sym]||0; if(!live) return;
     var cur=sliderPrices[sym]!==undefined?sliderPrices[sym]:live;
-    var min=Math.round(live*0.25),max=Math.round(live*2.5);
-    var modified=sliderPrices[sym]!==undefined;
+    var min=Math.round(live*.25), max=Math.round(live*2.5);
+    var mod=sliderPrices[sym]!==undefined;
     html+='<div class="sl-item">'
-      +'<div class="sl-head"><span class="sl-sym">'+sym+'/USD</span>'
-        +'<span class="sl-val" id="sv-'+sym+'" style="color:'+(modified?'var(--warn)':'var(--text)')+'">$'+cur.toLocaleString('en-US',{maximumFractionDigits:2})+(modified?' ✎':'')+'</span>'
+      +'<div class="sl-head"><span style="color:var(--muted);font-size:10px">'+sym+'/USD</span>'
+        +'<span id="sv-'+sym+'" style="font-size:11px;font-weight:500;color:'+(mod?'var(--warn)':'var(--text)')+'">$'+cur.toLocaleString('en-US',{maximumFractionDigits:2})+(mod?' ✎':'')+'</span>'
       +'</div>'
-      +'<input type="range" min="'+min+'" max="'+max+'" value="'+Math.round(cur)+'" step="'+Math.max(1,Math.round(live*0.001))+'" oninput="onSlide(\''+sym+'\',this.value)">'
+      +'<input type="range" min="'+min+'" max="'+max+'" value="'+Math.round(cur)+'" step="'+Math.max(1,Math.round(live*.001))+'" oninput="onSlide(\''+sym+'\',this.value)">'
       +'<div class="sl-bounds"><span>$'+min.toLocaleString()+'</span><span style="color:var(--muted)">Live: $'+live.toLocaleString('en-US',{maximumFractionDigits:2})+'</span><span>$'+max.toLocaleString()+'</span></div>'
     +'</div>';
   });
@@ -988,83 +774,90 @@ function buildSliders(){
 function onSlide(sym,val){
   val=parseFloat(val);
   var live=prices[sym]||0;
-  if(Math.abs(val-live)<live*0.005) delete sliderPrices[sym];
-  else sliderPrices[sym]=val;
+  if(Math.abs(val-live)<live*.005) delete sliderPrices[sym]; else sliderPrices[sym]=val;
   var el=document.getElementById('sv-'+sym);
   if(el){el.textContent='$'+val.toLocaleString('en-US',{maximumFractionDigits:2})+(sliderPrices[sym]?' ✎':'');
     el.style.color=sliderPrices[sym]?'var(--warn)':'var(--text)';}
   renderAll();
 }
 
-function resetSliders(){
-  sliderPrices={};buildSliders();renderAll();toast('Reset to live prices');
-}
+function resetSliders(){sliderPrices={};buildSliders();renderAll();toast('Reset to live prices');}
 
-// ═══════════ WHAT IF ═══════════
-function populateWiSelect(){
-  var sel=document.getElementById('wiSel');
-  var cur=sel.value;
-  sel.innerHTML='<option value="">— select a position to analyze —</option>';
-  positions.forEach(function(p){
-    var o=document.createElement('option');
-    o.value=p.id;o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);
-  });
+// ═══ WHAT IF ═══
+function populateWi(){
+  var sel=document.getElementById('wiSel'), cur=sel.value;
+  sel.innerHTML='<option value="">— select a position —</option>';
+  positions.forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);});
   if(cur) sel.value=cur;
-  updateWiUI();
+  updateWi();
 }
 
-function updateWiUI(){
+function updateWi(){
   document.getElementById('wiBody').style.display=document.getElementById('wiSel').value?'block':'none';
   document.getElementById('wiResult').classList.remove('show');
 }
 
-function runWhatIf(type){
+function runWi(type){
   var id=parseInt(document.getElementById('wiSel').value);
   var pos=positions.find(function(p){return p.id===id;});
   if(!pos){toast('Select a position first');return;}
-  var before=calcHF(pos),np=Object.assign({},pos);
-  if(type==='coll'){
-    var add=parseFloat(document.getElementById('wiColl').value)||0;
-    np.collAmt=pos.collAmt+(add/(getP(pos.coll)||1));
-  } else if(type==='debt'){
-    var rep=parseFloat(document.getElementById('wiDebt').value)||0;
-    var dp=(pos.debt==='USDC'||pos.debt==='USDT')?1:(getP(pos.debt)||1);
-    np.debtAmt=Math.max(0,pos.debtAmt-(rep/dp));
-  } else {
-    var bor=parseFloat(document.getElementById('wiBorrow').value)||0;
-    var bp=(pos.debt==='USDC'||pos.debt==='USDT')?1:(getP(pos.debt)||1);
-    np.debtAmt=pos.debtAmt+(bor/bp);
-  }
-  var after=calcHF(np);
-  var better=after.hf>before.hf;
-  var bS=status(before.hf),aS=status(after.hf);
+  var before=calcHF(pos), np=Object.assign({},pos);
+  if(type==='coll'){var add=parseFloat(document.getElementById('wiColl').value)||0;np.collAmt=pos.collAmt+(add/(getP(pos.coll)||1));}
+  else if(type==='debt'){var rep=parseFloat(document.getElementById('wiDebt').value)||0;var dp=(pos.debt==='USDC'||pos.debt==='USDT')?1:(getP(pos.debt)||1);np.debtAmt=Math.max(0,pos.debtAmt-(rep/dp));}
+  else{var bor=parseFloat(document.getElementById('wiBorrow').value)||0;var bp=(pos.debt==='USDC'||pos.debt==='USDT')?1:(getP(pos.debt)||1);np.debtAmt=pos.debtAmt+(bor/bp);}
+  var after=calcHF(np), better=after.hf>before.hf;
+  var bS=st(before.hf), aS=st(after.hf);
   var res=document.getElementById('wiResult');
   res.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
     +'<div><div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">BEFORE</div>'
-      +'<div style="font-size:22px;font-weight:700;font-family:var(--display);color:'+statusColor(bS)+'">'+( before.hf===999?'∞':before.hf.toFixed(3))+'</div>'
-      +'<div style="font-size:9px;color:var(--muted)">'+statusLabel(before.hf)+'</div></div>'
+      +'<div style="font-size:22px;font-weight:700;font-family:var(--display);color:'+sc(bS)+'">'+(before.hf===999?'∞':before.hf.toFixed(3))+'</div>'
+      +'<div style="font-size:9px;color:var(--muted)">'+sl(before.hf)+'</div></div>'
     +'<div><div style="font-size:8px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">AFTER</div>'
-      +'<div style="font-size:22px;font-weight:700;font-family:var(--display);color:'+statusColor(aS)+'">'+( after.hf===999?'∞':after.hf.toFixed(3))+'</div>'
+      +'<div style="font-size:22px;font-weight:700;font-family:var(--display);color:'+sc(aS)+'">'+(after.hf===999?'∞':after.hf.toFixed(3))+'</div>'
       +'<div style="font-size:9px;color:'+(better?'var(--safe)':'#ff3b5c')+'">'+(better?'▲ IMPROVED':'▼ WORSENED')+'</div></div>'
   +'</div>'
-  +'<div style="margin-top:12px;font-size:10px;color:var(--muted)">New liquidation price: '
-    +'<strong style="color:'+statusColor(aS)+'">$'+after.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong></div>';
+  +'<div style="margin-top:10px;font-size:10px;color:var(--muted)">New liq. price: <strong style="color:'+sc(aS)+'">$'+after.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong></div>';
   res.classList.add('show');
 }
 
-// ═══════════ ALERTS ═══════════
+// ═══ SPARKLINE ═══
+var posHistory={};
+function recordHist(){
+  positions.forEach(function(pos){
+    var c=calcHF(pos);
+    if(!posHistory[pos.id]) posHistory[pos.id]=[];
+    posHistory[pos.id].push({t:Date.now(),hf:Math.min(3,c.hf===999?3:c.hf)});
+    if(posHistory[pos.id].length>60) posHistory[pos.id].shift();
+  });
+}
+
+function renderSpark(id, col){
+  var h=posHistory[id];
+  if(!h||h.length<3) return '';
+  var vals=h.map(function(x){return x.hf;});
+  var mn=Math.min.apply(null,vals)*.95, mx=Math.max.apply(null,vals)*1.05;
+  var range=mx-mn||0.1, W=300, H=32;
+  var pts=vals.map(function(v,i){return((i/(vals.length-1))*W).toFixed(1)+','+(H-((v-mn)/range)*(H-4)-2).toFixed(1);}).join(' ');
+  var danY=H-((1-mn)/range)*(H-4)-2;
+  var dLine=danY>2&&danY<H?'<line x1="0" y1="'+danY.toFixed(1)+'" x2="'+W+'" y2="'+danY.toFixed(1)+'" stroke="rgba(255,59,92,.3)" stroke-width="1" stroke-dasharray="3,3"/>':'';
+  return '<div class="spark-wrap"><div class="spark-label">HF History</div>'
+    +'<svg width="100%" height="32" viewBox="0 0 300 32" preserveAspectRatio="none">'
+      +dLine+'<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'</svg></div>';
+}
+
+// ═══ ALERTS ═══
 function toggleAlerts(){
   if(!alertsOn){
-    if(!('Notification' in window)){toast('Browser notifications not supported');return;}
+    if(!('Notification' in window)){toast('Notifications not supported');return;}
     Notification.requestPermission().then(function(p){
-      if(p==='granted'){alertsOn=true;document.getElementById('btnAlert').classList.add('on');
-        document.getElementById('btnAlert').textContent='🔔 ALERTS ON';toast('Alerts enabled');}
-      else toast('Notification permission denied');
+      if(p==='granted'){alertsOn=true;document.getElementById('btnAlert').textContent='🔔 ALERTS ON';document.getElementById('btnAlert').classList.add('on');toast('Alerts enabled');}
+      else toast('Permission denied');
     });
   } else {
     alertsOn=false;alerted={};
-    document.getElementById('btnAlert').classList.remove('on');
     document.getElementById('btnAlert').textContent='🔔 ALERTS OFF';
+    document.getElementById('btnAlert').classList.remove('on');
     toast('Alerts disabled');
   }
 }
@@ -1072,279 +865,108 @@ function toggleAlerts(){
 function checkAlerts(){
   if(!alertsOn) return;
   positions.forEach(function(pos){
-    var c=calcHF(pos),s=status(c.hf),key=pos.id+'-'+s;
-    if((s==='danger'||s==='warn')&&!alerted[key]){
+    var c=calcHF(pos), s=st(c.hf), thresh=pos.alert||1.5, key=pos.id+'-'+s;
+    if(c.hf<thresh&&c.hf>0&&!alerted[key]){
       alerted[key]=true;
-      new Notification(s==='danger'?'🚨 DANGER: '+pos.proto+' Position!':'⚠️ WARNING: '+pos.proto,
-        {body:pos.coll+'→'+pos.debt+' | HF: '+c.hf.toFixed(3)+' | Liq at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})});
+      new Notification(s==='dead'?'☠️ LIQUIDATED: '+pos.proto:'🚨 '+pos.proto+' HF below '+thresh,
+        {body:pos.coll+'→'+pos.debt+' | HF: '+c.hf.toFixed(3)+' | Liq $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})});
     }
   });
 }
 
-// ═══════════ SHARE ═══════════
+// ═══ SHARE ═══
 function openShare(){
   if(!positions.length){toast('Add a position first');return;}
   var sel=document.getElementById('shareSel');
   sel.innerHTML='<option value="">— select position —</option>';
-  positions.forEach(function(p){
-    var o=document.createElement('option');o.value=p.id;
-    o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);
-  });
-  if(positions.length===1){sel.value=positions[0].id;renderShareCard();}
-  // Show portfolio card tab
+  positions.forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.proto+' — '+p.coll+'→'+p.debt;sel.appendChild(o);});
+  switchTab('pf');
   document.getElementById('shareOverlay').classList.add('show');
-  // Default to portfolio view
-  renderPortfolioCard();
 }
+
 function closeShare(){document.getElementById('shareOverlay').classList.remove('show');}
 
-function renderShareCard(){
+function switchTab(tab){
+  document.getElementById('pfTab').style.display=tab==='pf'?'block':'none';
+  document.getElementById('singleTab').style.display=tab==='single'?'block':'none';
+  document.getElementById('tabPF').className='share-tab'+(tab==='pf'?' active':'');
+  document.getElementById('tabSingle').className='share-tab'+(tab==='single'?' active':'');
+  if(tab==='pf') renderPF();
+}
+
+function renderPF(){
+  var coll=0,debt=0,risk=0,danger=0;
+  var rows='';
+  positions.forEach(function(p){
+    var c=calcHF(p),s=st(c.hf),col=sc(s);
+    coll+=c.cUSD; debt+=c.dUSD;
+    if(s==='warn')risk++; if(s==='danger'||s==='dead')danger++;
+    rows+='<div class="pf-row '+s+'"><div><div class="pf-row-name">'+p.proto+' — '+p.coll+'→'+p.debt+'</div>'
+      +'<div class="pf-row-pair">Liq. $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
+      +'<div class="pf-row-hf" style="color:'+col+'">'+(c.hf===999?'∞':c.hf.toFixed(2))+'</div></div>';
+  });
+  var ov=danger>0?'🚨':risk>0?'⚠️':'✅';
+  document.getElementById('pfTab').innerHTML='<div class="pf-card">'
+    +'<div class="pf-top"><div class="pf-logo">Pyth<em>Risk</em></div><span>'+ov+'</span></div>'
+    +'<div class="pf-stats">'
+      +'<div><div class="pf-stat-l">Total Collateral</div><div class="pf-stat-v" style="color:var(--safe)">$'+coll.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+      +'<div><div class="pf-stat-l">Total Debt</div><div class="pf-stat-v">$'+debt.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
+      +'<div><div class="pf-stat-l">Positions</div><div class="pf-stat-v">'+positions.length+'</div></div>'
+      +'<div><div class="pf-stat-l">Danger</div><div class="pf-stat-v" style="color:#ff3b5c">'+danger+'</div></div>'
+    +'</div>'
+    +'<div class="pf-rows">'+rows+'</div>'
+    +'<div class="pf-foot"><span>pythrisk.vercel.app</span><span>Powered by Pyth Network</span></div>'
+  +'</div>'
+  +'<button class="copy-btn" onclick="copyPF()">📋 COPY FOR TWITTER</button>';
+}
+
+function renderSingle(){
   var id=parseInt(document.getElementById('shareSel').value);
   var pos=positions.find(function(p){return p.id===id;});
-  var wrap=document.getElementById('shareCardWrap');
+  var wrap=document.getElementById('singleWrap');
   if(!pos){wrap.innerHTML='';return;}
-  var c=calcHF(pos),s=status(c.hf),col=statusColor(s),lbl=statusLabel(c.hf);
-  var hfStr=c.hf===999?'∞':c.hf.toFixed(2);
+  var c=calcHF(pos),s=st(c.hf),col=sc(s);
   wrap.innerHTML='<div class="share-card">'
-    +'<div class="sc-top"><div class="sc-logo">Pyth<em>Risk</em></div><span class="badge '+s+'">'+lbl+'</span></div>'
-    +'<div class="sc-main">'
-      +'<div class="sc-pair">'+pos.coll+' / '+pos.debt+'</div>'
-      +'<div class="sc-proto">'+pos.proto.toUpperCase()+' POSITION</div>'
-      +'<div class="sc-hf" style="color:'+col+'">'+hfStr+'</div>'
-      +'<div class="sc-hfl">HEALTH FACTOR</div>'
-    +'</div>'
+    +'<div class="sc-top"><div class="sc-logo">Pyth<em>Risk</em></div><span class="badge '+s+'">'+sl(c.hf)+'</span></div>'
+    +'<div class="sc-pair">'+pos.coll+' / '+pos.debt+'</div>'
+    +'<div class="sc-proto">'+pos.proto.toUpperCase()+' POSITION</div>'
+    +'<div class="sc-hf" style="color:'+col+'">'+(c.hf===999?'∞':c.hf.toFixed(2))+'</div>'
+    +'<div class="sc-hfl">HEALTH FACTOR</div>'
     +'<div class="sc-grid">'
       +'<div><div class="sc-s-l">Collateral</div><div class="sc-s-v">$'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
       +'<div><div class="sc-s-l">Debt</div><div class="sc-s-v">$'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
       +'<div><div class="sc-s-l">Liq. Price</div><div class="sc-s-v" style="color:'+col+'">$'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
     +'</div>'
-    +'<div class="sc-foot">pythrisk.vercel.app · Powered by Pyth Network · '+new Date().toLocaleDateString()+'</div>'
+    +'<div class="sc-foot"><span>pythrisk.vercel.app</span><span>Pyth Network</span></div>'
   +'</div>'
-  +'<button class="copy-btn" onclick="copyShare('+id+')">📋 COPY SHARE TEXT FOR TWITTER</button>';
+  +'<button class="copy-btn" onclick="copySingle('+id+')">📋 COPY FOR TWITTER</button>';
 }
 
-function copyShare(id){
-  var pos=positions.find(function(p){return p.id===id;});
-  if(!pos) return;
-  var c=calcHF(pos),s=status(c.hf);
-  var e={safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[s];
-  var txt=e+' My '+pos.proto+' '+pos.coll+'→'+pos.debt+' position\n'
-    +'📊 Health Factor: '+(c.hf===999?'∞':c.hf.toFixed(3))+' ('+statusLabel(c.hf)+')\n'
-    +'💰 Collateral: $'+c.cUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'\n'
-    +'💸 Debt: $'+c.dUSD.toLocaleString('en-US',{maximumFractionDigits:0})+'\n'
-    +'⚡ Liquidation at: $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'\n\n'
-    +'Monitor your DeFi risk in real time 👇\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
-  navigator.clipboard.writeText(txt).then(function(){toast('Copied! Paste to Twitter 🐦');}).catch(function(){toast('Copy manually from the card');});
+function copyPF(){
+  var lines='';
+  positions.forEach(function(p){var c=calcHF(p),s=st(c.hf);var e={safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[s];lines+=e+' '+p.proto+' '+p.coll+'→'+p.debt+' | HF: '+(c.hf===999?'∞':c.hf.toFixed(2))+' | Liq $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'\n';});
+  var coll=0,debt=0;positions.forEach(function(p){var c=calcHF(p);coll+=c.cUSD;debt+=c.dUSD;});
+  var txt='📊 My DeFi Portfolio Risk\n\n'+lines+'\n💰 Collateral: $'+coll.toLocaleString('en-US',{maximumFractionDigits:0})+'\n💸 Debt: $'+debt.toLocaleString('en-US',{maximumFractionDigits:0})+'\n\nMonitor yours 👇\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
+  navigator.clipboard.writeText(txt).then(function(){toast('Copied for Twitter! 🐦');});
 }
 
-// ═══════════ UTILS ═══════════
-function scrollToForm(){document.getElementById('addForm').scrollIntoView({behavior:'smooth'});}
+function copySingle(id){
+  var pos=positions.find(function(p){return p.id===id;});if(!pos)return;
+  var c=calcHF(pos),s=st(c.hf);var e={safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[s];
+  var txt=e+' My '+pos.proto+' position\n'+pos.coll+'→'+pos.debt+' | HF: '+(c.hf===999?'∞':c.hf.toFixed(3))+' | Liq $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
+  navigator.clipboard.writeText(txt).then(function(){toast('Copied! 🐦');});
+}
+
+// ═══ UTILS ═══
+function scrollForm(){document.getElementById('addForm').scrollIntoView({behavior:'smooth'});}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 
-
-// ═══════════════════════════════════
-// PROTOCOL DATA — real LTV thresholds
-// ═══════════════════════════════════
-var PROTOCOL_DATA = {
-  'Aave': {
-    'ETH': {thresh:0.85, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
-    'BTC': {thresh:0.80, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
-    'SOL': {thresh:0.75, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
-    'BNB': {thresh:0.75, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
-    'AVAX': {thresh:0.70, logo:'https://cryptologos.cc/logos/aave-aave-logo.png'},
-    'default': {thresh:0.80}
-  },
-  'Compound': {
-    'ETH': {thresh:0.83},
-    'BTC': {thresh:0.80},
-    'default': {thresh:0.75}
-  },
-  'MakerDAO': {
-    'ETH': {thresh:0.77},
-    'BTC': {thresh:0.75},
-    'default': {thresh:0.70}
-  },
-  'Venus': {
-    'ETH': {thresh:0.80},
-    'BTC': {thresh:0.80},
-    'default': {thresh:0.75}
-  },
-  'Custom': {
-    'default': {thresh:0.75}
-  }
-};
-
-var PROTO_LOGOS = {
-  'Aave': 'https://cryptologos.cc/logos/aave-aave-logo.png',
-  'Compound': 'https://cryptologos.cc/logos/compound-comp-logo.png',
-  'MakerDAO': 'https://cryptologos.cc/logos/maker-mkr-logo.png',
-  'Venus': 'https://cryptologos.cc/logos/venus-xvs-logo.png',
-};
-
-function autoFillProtocol() {
-  var proto = document.getElementById('fProto').value;
-  var coll = document.getElementById('fCollAsset').value;
-  var pd = PROTOCOL_DATA[proto];
-  if (!pd) return;
-  var data = pd[coll] || pd['default'];
-  if (data && data.thresh) {
-    var sel = document.getElementById('fThresh');
-    // Find closest option
-    var best = null, bestDiff = 999;
-    for (var i=0; i<sel.options.length; i++) {
-      var diff = Math.abs(parseFloat(sel.options[i].value) - data.thresh);
-      if (diff < bestDiff) { bestDiff = diff; best = i; }
-    }
-    if (best !== null) sel.selectedIndex = best;
-  }
-}
-
-// ═══════════════════════════════════
-// POSITION HISTORY — track HF over time
-// ═══════════════════════════════════
-var posHistory = {}; // posId -> [{t, hf}]
-
-function recordHistory() {
-  positions.forEach(function(pos) {
-    var c = calcHF(pos);
-    if (!posHistory[pos.id]) posHistory[pos.id] = [];
-    posHistory[pos.id].push({t: Date.now(), hf: c.hf === 999 ? 3 : Math.min(3, c.hf)});
-    if (posHistory[pos.id].length > 60) posHistory[pos.id].shift(); // keep 5 min at 5s intervals
-  });
-}
-
-function renderSparkline(posId, color) {
-  var hist = posHistory[posId];
-  if (!hist || hist.length < 2) return '';
-  var vals = hist.map(function(h){return h.hf;});
-  var min = Math.min.apply(null, vals) * 0.95;
-  var max = Math.max.apply(null, vals) * 1.05;
-  var range = max - min || 0.1;
-  var W = 300, H = 36;
-  var pts = vals.map(function(v, i) {
-    var x = (i / (vals.length-1)) * W;
-    var y = H - ((v - min) / range) * (H - 4) - 2;
-    return x.toFixed(1)+','+y.toFixed(1);
-  }).join(' ');
-  // Add danger line at HF=1
-  var dangerY = H - ((1 - min) / range) * (H - 4) - 2;
-  var dangerLine = dangerY > 0 && dangerY < H
-    ? '<line x1="0" y1="'+dangerY.toFixed(1)+'" x2="'+W+'" y2="'+dangerY.toFixed(1)+'" stroke="rgba(255,59,92,0.3)" stroke-width="1" stroke-dasharray="3,3"/>'
-    : '';
-  return '<div class="sparkline-wrap">'
-    + '<div class="sparkline-label">Health Factor History (last ' + hist.length*5 + 's)</div>'
-    + '<svg class="sparkline-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
-      + dangerLine
-      + '<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
-      + '<circle cx="'+(parseFloat(pts.split(' ').pop().split(',')[0])).toFixed(1)+'" cy="'+(parseFloat(pts.split(' ').pop().split(',')[1])).toFixed(1)+'" r="3" fill="'+color+'"/>'
-    + '</svg>'
-  + '</div>';
-}
-
-// ═══════════════════════════════════
-// PORTFOLIO SHARE CARD
-// ═══════════════════════════════════
-function renderPortfolioCard() {
-  var wrap = document.getElementById('shareCardWrap');
-  if (!positions.length) { wrap.innerHTML = '<div style="color:var(--muted);font-size:11px">Add positions first</div>'; return; }
-
-  var totalColl = 0, totalDebt = 0, atRisk = 0, danger = 0;
-  var posRows = '';
-  positions.forEach(function(pos) {
-    var c = calcHF(pos), s = status(c.hf), col = statusColor(s);
-    totalColl += c.cUSD; totalDebt += c.dUSD;
-    if (s==='warn') atRisk++;
-    if (s==='danger'||s==='dead') danger++;
-    var hfStr = c.hf === 999 ? '∞' : c.hf.toFixed(2);
-    posRows += '<div class="pf-pos-row '+s+'">'
-      + '<div><div class="pf-pos-name">'+pos.proto+' — '+pos.coll+'→'+pos.debt+'</div>'
-        + '<div class="pf-pos-pair">Liq. at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'</div></div>'
-      + '<div class="pf-pos-hf" style="color:'+col+'">'+hfStr+'</div>'
-    + '</div>';
-  });
-
-  var overallEmoji = danger > 0 ? '🚨' : atRisk > 0 ? '⚠️' : '✅';
-  var overallText = danger > 0 ? 'AT RISK' : atRisk > 0 ? 'WARNING' : 'HEALTHY';
-  var overallColor = danger > 0 ? '#ff3b5c' : atRisk > 0 ? 'var(--warn)' : 'var(--safe)';
-
-  wrap.innerHTML = '<div class="portfolio-card">'
-    + '<div class="pf-header">'
-      + '<div class="pf-logo">'
-        + '<img src="https://raw.githubusercontent.com/BamBambott/pythrisk/main/logo.jpeg.png" style="width:28px;height:28px;border-radius:6px;object-fit:contain">'
-        + '<div class="pf-logo-text">Pyth<em>Risk</em></div>'
-      + '</div>'
-      + '<div class="pf-date">'+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</div>'
-    + '</div>'
-    + '<div class="pf-stats">'
-      + '<div><div class="pf-stat-l">Positions</div><div class="pf-stat-v">'+positions.length+'</div></div>'
-      + '<div><div class="pf-stat-l">Collateral</div><div class="pf-stat-v" style="color:var(--safe)">$'+totalColl.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
-      + '<div><div class="pf-stat-l">Total Debt</div><div class="pf-stat-v">$'+totalDebt.toLocaleString('en-US',{maximumFractionDigits:0})+'</div></div>'
-      + '<div><div class="pf-stat-l">Status</div><div class="pf-stat-v" style="color:'+overallColor+'">'+overallEmoji+'</div></div>'
-    + '</div>'
-    + '<div class="pf-positions">'+posRows+'</div>'
-    + '<div class="pf-footer">'
-      + '<span>pythrisk.vercel.app</span>'
-      + '<span>Powered by Pyth Network</span>'
-    + '</div>'
-  + '</div>'
-  + '<button class="copy-btn" style="margin-top:10px" onclick="copyPortfolioText()">📋 COPY FOR TWITTER</button>';
-}
-
-function copyPortfolioText() {
-  var totalColl = 0, totalDebt = 0, atRisk = 0, danger = 0;
-  var lines = '';
-  positions.forEach(function(pos) {
-    var c = calcHF(pos), s = status(c.hf);
-    totalColl += c.cUSD; totalDebt += c.dUSD;
-    if (s==='warn') atRisk++;
-    if (s==='danger'||s==='dead') danger++;
-    var e = {safe:'✅',warn:'⚠️',danger:'🚨',dead:'☠️'}[s];
-    lines += e+' '+pos.proto+' '+pos.coll+'→'+pos.debt+' | HF: '+(c.hf===999?'∞':c.hf.toFixed(2))+' | Liq: $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2})+'\n';
-  });
-  var txt = '📊 My DeFi Portfolio Risk Report\n\n'
-    + lines
-    + '\n💰 Total Collateral: $'+totalColl.toLocaleString('en-US',{maximumFractionDigits:0})
-    + '\n💸 Total Debt: $'+totalDebt.toLocaleString('en-US',{maximumFractionDigits:0})
-    + '\n\nTracked in real-time with @PythNetwork price feeds 👇\nhttps://pythrisk.vercel.app\n#DeFi #Pyth #PythRisk';
-  navigator.clipboard.writeText(txt.replace(/\n/g,'\n')).then(function(){
-    toast('Portfolio report copied for Twitter! 🐦');
-  });
-}
-
-// ═══════════════════════════════════
-// ALERT THRESHOLD per position
-// ═══════════════════════════════════
-function checkAlerts() {
-  if (!alertsOn) return;
-  positions.forEach(function(pos) {
-    var c = calcHF(pos), s = status(c.hf);
-    var thresh = pos.alertThresh || 1.5;
-    var key = pos.id + '-' + (c.hf < thresh ? 'below' : 'above');
-    if (c.hf < thresh && c.hf > 0 && !alerted[key]) {
-      alerted[key] = true;
-      var title = c.hf <= 1 ? '☠️ LIQUIDATED: ' + pos.proto : '🚨 ALERT: ' + pos.proto + ' HF below ' + thresh;
-      var body = pos.coll+'→'+pos.debt+' | HF: '+c.hf.toFixed(3)+' | Liq at $'+c.liqP.toLocaleString('en-US',{maximumFractionDigits:2});
-      new Notification(title, {body: body});
-    }
-  });
-}
-
-
-function switchShareTab(tab) {
-  document.getElementById('portfolioTab').style.display = tab==='portfolio' ? 'block' : 'none';
-  document.getElementById('singleTab').style.display = tab==='single' ? 'block' : 'none';
-  document.getElementById('tabPortfolio').className = 'tb-btn ' + (tab==='portfolio' ? 'tb-share' : '');
-  document.getElementById('tabPortfolio').style = tab==='portfolio' ? 'flex:1;justify-content:center' : 'flex:1;justify-content:center;border-color:var(--border2);color:var(--muted)';
-  document.getElementById('tabSingle').style = tab==='single' ? 'flex:1;justify-content:center;border-color:var(--safe);color:var(--safe);background:rgba(0,229,160,0.08)' : 'flex:1;justify-content:center;border-color:var(--border2);color:var(--muted)';
-  if (tab==='portfolio') renderPortfolioCard();
-}
-
-// ═══════════ INIT ═══════════
-loadDemo(); // show positions immediately
+// ═══ INIT ═══
+loadDemo();
 fetchPrices();
 fetch24h();
-setInterval(fetchPrices,5000);
-setInterval(fetch24h,300000);
+setInterval(fetchPrices, 5000);
+setInterval(fetch24h, 300000);
 </script>
 
 </body>
