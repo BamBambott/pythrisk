@@ -684,8 +684,27 @@ var PROTO_COLORS={Aave:'#B6509E',Compound:'#00D395',MakerDAO:'#F5AC37',Venus:'#F
 function getP(sym){return sliderPrices[sym]!==undefined?sliderPrices[sym]:(prices[sym]||0)}
 
 // ═══════════ FETCH ═══════════
+// Only fetch confirmed working IDs
+var VERIFIED_FEEDS={
+  BTC:'0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
+  ETH:'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
+  SOL:'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
+  BNB:'0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f',
+  AVAX:'0x93da3352f9f1d105fdfe4971cfa80e9dd777bfc5d0f683ebb6e1294b92137bb7',
+  USDC:'0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a',
+  USDT:'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
+  LINK:'0x8ac0c70fff57e9aefdf5edf44b51d62c2d433653cbb2cf5cc06bb115af04d221',
+  SUI:'0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744',
+  XRP:'0xec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8',
+  LTC:'0xca3eed9b267293f6595901c734c7525ce8ef49adafe8284606ceb307afa2ca5b',
+  DOT:'0x6489800bb8974169adfe35937bf6736507097d13c190d760c557108c7e93a81b',
+  ATOM:'0xb00b60f88b03a6a625a8d1c048c3f66653edf217439983d037e7222c4e612819',
+  XAU:'0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2',
+  XAG:'0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e',
+};
+
 async function fetchPrices(){
-  var ids=Object.values(FEEDS);
+  var ids=Object.values(VERIFIED_FEEDS);
   var params=ids.map(function(i){return'ids[]='+i}).join('&');
   var sources=[
     '/api/prices',
@@ -1321,8 +1340,7 @@ function switchShareTab(tab) {
 }
 
 // ═══════════ INIT ═══════════
-// Load demo immediately so site never looks empty
-loadDemo();
+loadDemo(); // show positions immediately
 fetchPrices();
 fetch24h();
 setInterval(fetchPrices,5000);
